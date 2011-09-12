@@ -85,6 +85,8 @@ public class FauxClockActivity extends Activity implements OnClickListener,
         gpuPref = (ExpandingPreference) findViewById(R.id.gpu_control_pref);
         gpuPref.setTitle("GPU Control");
         gpuPref.setOnClickListener(this);
+        
+        Controller.readCpuTable();
 
         // Log.e(TAG, formatMhz(972000 + ""));
     }
