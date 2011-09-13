@@ -119,6 +119,44 @@
 
 	</RelativeLayout>
 
+	<com.teamkang.fauxclock.ExpandingPreference
+		android:id="@+id/voltage_control_pref"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="5dip" />
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:id="@+id/voltage_control"
+		android:padding="6dip"
+		android:orientation="vertical"
+		android:layout_height="wrap_content"
+		android:background="#FF333333">
+		<TextView
+			android:id="@+id/voltage_label"
+			android:layout_width="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:layout_height="wrap_content"
+			android:text="Global voltage" />
+
+		<TextView
+			android:id="@+id/voltage_delta"
+			android:layout_width="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/voltage_control_pref"
+			android:text="0 mv" />
+
+		<SeekBar
+			android:layout_height="wrap_content"
+			android:id="@+id/global_voltage_seekbar"
+			android:layout_below="@id/voltage_label"
+			android:layout_width="match_parent" />
+
+
+	</RelativeLayout>
+
 	<!-- GPU control here -->
 	<com.teamkang.fauxclock.ExpandingPreference
 		android:id="@+id/gpu_control_pref"

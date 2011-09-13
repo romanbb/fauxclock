@@ -22,8 +22,12 @@ public class CpuController {
     private static String CPU1_MIN_FREQ_PATH = "/sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq";
     private static String CPU1_CUR_FREQ_PATH = "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq";
 
+    private static String CPU_GOVS_LIST_PATH = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors";
+    private static String CPU_CURRENT_GOV = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor";
+
     // private static HashMap<String, String> cpu_table;
     private ArrayList<String> freqs;
+    private ArrayList<String> govs;
 
     protected Context mContext;
 
@@ -32,10 +36,13 @@ public class CpuController {
 
     public int globalVoltageDelta = 0;
 
+    public static final String TAG = "CpuController";
+
     public CpuController(Context c) {
         mContext = c;
 
         freqs = new ArrayList<String>();
+        govs = new ArrayList<String>();
 
         settings = mContext.getSharedPreferences("cpu_table", 0);
         editor = settings.edit();
@@ -72,6 +79,53 @@ public class CpuController {
 
     public ArrayList<String> getFreqs() {
         return freqs;
+    }
+
+    public ArrayList<String> getGovs() {
+        return govs;
+    }
+
+    public String getCurrentActiveGov() {
+        String g = "";
+
+        if (ShellInterface.isSuAvailable()) {
+            g = ShellInterface.getProcessOutput("cat " + CPU_CURRENT_GOV);
+        }
+
+        return g;
+    }
+
+    public void readGovs() {
+        String output = "";
+
+        // read table into string
+        if (ShellInterface.isSuAvailable()) {
+            output = ShellInterface.getProcessOutput("cat " + CPU_GOVS_LIST_PATH);
+        }
+        StringTokenizer st = new StringTokenizer(output);
+
+        // break up string, read values, set keys, voltages
+        while (st.hasMoreTokens()) {
+            // String line = st.nextToken();
+            String gov = st.nextToken().trim();
+
+            Log.e(TAG, "Gov: " + gov);
+            govs.add(gov);
+
+        }
+    }
+
+    public boolean setGov(String newGov) {
+        if (!isValidGov(newGov))
+            return false;
+
+        if (ShellInterface.isSuAvailable()) {
+            ShellInterface.getProcessOutput("echo \"" + newGov + "\" > " + CPU_CURRENT_GOV);
+            return true;
+        }
+
+        return false;
+
     }
 
     /**
@@ -240,6 +294,7 @@ public class CpuController {
 
     public void decreaseAllVoltagesBy25() {
         // loop through freqs, and decrease local references
+        globalVoltageDelta -= 25000;
 
         // apply for later
         for (String freq : freqs) {
@@ -258,6 +313,7 @@ public class CpuController {
 
     public void increaseAllVoltagesBy25() {
         // loop through freqs, and decrease local references
+        globalVoltageDelta += 25000;
 
         // apply for later
         for (String freq : freqs) {
@@ -272,6 +328,10 @@ public class CpuController {
             ShellInterface
                     .runCommand("echo \"+25000\" > /sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels");
         }
+    }
+
+    public boolean isValidGov(String gov) {
+        return govs.contains((String) gov);
     }
 
     public boolean isValidFreq(String freq) {

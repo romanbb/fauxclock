@@ -5,9 +5,13 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -26,9 +30,14 @@ public class FauxClockActivity extends Activity implements OnClickListener,
     public SeekBar cpuMinSeek;
     public TextView currentCpuMaxClock;
     public TextView currentCpuMinClock;
+    public Spinner cpuGovSpinner;
 
     public TextView currentCpu0Clock;
     public TextView currentCpu1Clock;
+
+    public TextView voltageLabel;
+    public TextView voltageDelta;
+    public SeekBar voltageSeek;
 
     CpuController cpu;
 
@@ -60,6 +69,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
         cpu = new CpuController(getApplicationContext());
         cpu.readVddCpuTable();
+        cpu.readGovs();
 
         cputable = buildCpuTable();
 
@@ -73,12 +83,12 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
         cpuMaxSeek = (SeekBar) findViewById(R.id.cpu_max_seek);
         cpuMaxSeek.setOnSeekBarChangeListener(this);
-        cpuMaxSeek.setMax(findMax(cputable, FREQ));
+        cpuMaxSeek.setMax(Integer.parseInt(cpu.getMaxFreq()));
         cpuMaxSeek.setProgress(Integer.parseInt(cpu.getMaxFreq()));
 
         cpuMinSeek = (SeekBar) findViewById(R.id.cpu_min_seek);
         cpuMinSeek.setOnSeekBarChangeListener(this);
-        cpuMinSeek.setMax(findMax(cputable, FREQ));
+        cpuMinSeek.setMax(Integer.parseInt(cpu.getMaxFreq()));
         cpuMinSeek.setProgress(Integer.parseInt(cpu.getMinFreq()));
 
         currentCpuMaxClock = (TextView) findViewById(R.id.cpu_max_clock);
@@ -94,6 +104,39 @@ public class FauxClockActivity extends Activity implements OnClickListener,
             @Override
             public void onClick(View v) {
                 refreshClocks();
+
+            }
+        });
+
+        /* voltage */
+        voltageSeek = (SeekBar) findViewById(R.id.global_voltage_seekbar);
+        voltageSeek.setMax(200);
+        voltageSeek.setProgress(100);
+        voltageSeek.setOnSeekBarChangeListener(this);
+
+        voltageDelta = (TextView) findViewById(R.id.voltage_delta);
+
+        /* governer */
+        cpuGovSpinner = (Spinner) findViewById(R.id.cpu_gov_spinner);
+        String[] govs = (String[]) cpu.getGovs().toArray(new String[cpu.getGovs().size()]);
+        ArrayAdapter<String> govSpinnerAdapter = new ArrayAdapter<String>(
+                getApplicationContext(), android.R.layout.simple_spinner_item, govs);
+        govSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        cpuGovSpinner.setAdapter(govSpinnerAdapter);
+        cpuGovSpinner.setSelection(govSpinnerAdapter.getPosition(cpu.getCurrentActiveGov()));
+        cpuGovSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedGov = (String) parent.getSelectedItem();
+
+                cpu.setGov(selectedGov);
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // TODO Auto-generated method stub
 
             }
         });
@@ -212,6 +255,14 @@ public class FauxClockActivity extends Activity implements OnClickListener,
                         seekBar.setProgress(cputable[FREQ][closestIndex]);
                         cpu.setMinFreq(cputable[FREQ][closestIndex] + "");
                     }
+                }
+                break;
+            case R.id.global_voltage_seekbar:
+                if (seekBar != null && voltageDelta != null) {
+
+                    int zero = 100;
+                    int previousVoltageDelta = voltageSeek.getProgress() - zero;
+
                 }
                 break;
         }
