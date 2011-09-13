@@ -28,7 +28,8 @@
 		android:layout_height="wrap_content"
 		android:text="TextView"
 		android:layout_below="@id/title"
-		android:layout_toRightOf="@id/icon" />
+		android:layout_toRightOf="@id/icon"
+		android:visibility="gone" />
 
 	<ImageView
 		android:layout_width="wrap_content"

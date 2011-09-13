@@ -1,189 +1,215 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+	android:layout_width="fill_parent"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:id="@+id/container"
 	android:orientation="vertical">
 
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_weight="2"
+		android:orientation="horizontal"
+		android:layout_height="match_parent"
+		android:baselineAligned="false">
+		<ScrollView
+			android:id="@+id/scroll"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent">
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:id="@+id/container"
+				android:orientation="vertical">
+				<RelativeLayout
+					android:layout_height="wrap_content"
+					android:id="@+id/info"
+					android:layout_width="wrap_content"
+					android:layout_margin="15dip"
+					android:gravity="center">
+					<TextView
+						android:text="TextView"
+						android:textAppearance="?android:attr/textAppearanceLarge"
+						android:id="@+id/cpu0_freq"
+						android:layout_alignParentLeft="true"
+						android:layout_height="wrap_content"
+						android:layout_width="wrap_content"></TextView>
+					<TextView
+						android:text="cpu0 freq"
+						android:layout_height="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:id="@+id/cpu0_freq_label"
+						android:layout_width="wrap_content"
+						android:layout_below="@+id/cpu0_freq" />
+					<TextView
+						android:text="TextView"
+						android:layout_height="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceLarge"
+						android:id="@+id/cpu1_freq"
+						android:layout_width="wrap_content"
+						android:layout_alignParentRight="true" />
+					<TextView
+						android:text="cpu1 freq"
+						android:layout_height="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:id="@+id/cpu1_freq_label"
+						android:layout_width="wrap_content"
+						android:layout_alignRight="@id/cpu1_freq"
+						android:layout_below="@id/cpu1_freq" />
+					<Button
+						android:layout_height="wrap_content"
+						android:layout_width="fill_parent"
+						android:layout_below="@id/cpu1_freq_label"
+						android:id="@+id/refresh"
+						android:text="Refresh Clocks" />
+				</RelativeLayout>
 
-	<RelativeLayout
-		android:layout_height="wrap_content"
-		android:id="@+id/info"
-		android:layout_width="wrap_content"
-		android:layout_margin="5dip"
-		android:gravity="center">
-		<TextView
-			android:text="TextView"
-			android:textAppearance="?android:attr/textAppearanceLarge"
-			android:id="@+id/cpu0_freq"
-			android:layout_alignParentLeft="true"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"></TextView>
-		<TextView
-			android:text="cpu0 freq"
-			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:id="@+id/cpu0_freq_label"
-			android:layout_width="wrap_content"
-			android:layout_below="@+id/cpu0_freq" />
-		<TextView
-			android:text="TextView"
-			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceLarge"
-			android:id="@+id/cpu1_freq"
-			android:layout_width="wrap_content"
-			android:layout_alignParentRight="true" />
-		<TextView
-			android:text="cpu1 freq"
-			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:id="@+id/cpu1_freq_label"
-			android:layout_width="wrap_content"
-			android:layout_alignRight="@id/cpu1_freq"
-			android:layout_below="@id/cpu1_freq" />
-		<Button
+
+				<com.teamkang.fauxclock.ExpandingPreference
+					android:id="@+id/cpu_control_pref"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:padding="10dip" />
+
+				<RelativeLayout
+					android:layout_width="match_parent"
+					android:id="@+id/cpuControl"
+					android:padding="15dip"
+					android:orientation="vertical"
+					android:layout_height="wrap_content"
+					android:background="#FF333333">
+					<TextView
+						android:id="@+id/cpu_max_label"
+						android:layout_width="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:layout_height="wrap_content"
+						android:layout_below="@id/cpu_control_pref"
+						android:text="Max clock" />
+					<TextView
+						android:id="@+id/cpu_max_clock"
+						android:layout_width="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:layout_height="wrap_content"
+						android:layout_alignParentRight="true"
+						android:layout_below="@id/cpu_control_pref"
+						android:text="0mhz" />
+					<SeekBar
+						android:layout_height="wrap_content"
+						android:id="@+id/cpu_max_seek"
+						android:layout_below="@id/cpu_max_label"
+						android:layout_width="match_parent" />
+					<TextView
+						android:id="@+id/cpu_min_label"
+						android:layout_width="wrap_content"
+						android:layout_below="@id/cpu_max_seek"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:layout_height="wrap_content"
+						android:text="Min clock" />
+					<TextView
+						android:id="@+id/cpu_min_clock"
+						android:layout_width="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:layout_height="wrap_content"
+						android:layout_alignParentRight="true"
+						android:layout_below="@id/cpu_max_seek"
+						android:text="0mhz" />
+					<SeekBar
+						android:layout_height="wrap_content"
+						android:id="@+id/cpu_min_seek"
+						android:layout_below="@id/cpu_min_label"
+						android:layout_width="match_parent" />
+					<TextView
+						android:id="@+id/cpu_gov_label"
+						android:layout_below="@id/cpu_min_seek"
+						android:layout_width="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:layout_height="wrap_content"
+						android:text="Governer" />
+					<Spinner
+						android:layout_height="wrap_content"
+						android:id="@+id/cpu_gov_spinner"
+						android:layout_below="@id/cpu_gov_label"
+						android:layout_width="match_parent" />
+
+				</RelativeLayout>
+
+				<com.teamkang.fauxclock.ExpandingPreference
+					android:id="@+id/voltage_control_pref"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:padding="10dip" />
+
+				<RelativeLayout
+					android:layout_width="match_parent"
+					android:id="@+id/voltage_control"
+					android:padding="15dip"
+					android:orientation="vertical"
+					android:layout_height="wrap_content"
+					android:background="#FF333333">
+					<TextView
+						android:id="@+id/voltage_label"
+						android:layout_width="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:layout_height="wrap_content"
+						android:text="Global voltage" />
+
+					<TextView
+						android:id="@+id/voltage_delta"
+						android:layout_width="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:layout_height="wrap_content"
+						android:layout_alignParentRight="true"
+						android:layout_below="@id/voltage_control_pref"
+						android:text="0 mv" />
+
+					<SeekBar
+						android:layout_height="wrap_content"
+						android:id="@+id/global_voltage_seekbar"
+						android:layout_below="@id/voltage_label"
+						android:layout_width="match_parent" />
+
+
+				</RelativeLayout>
+
+				<!-- GPU control here -->
+				<com.teamkang.fauxclock.ExpandingPreference
+					android:id="@+id/gpu_control_pref"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:padding="10dip" />
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:id="@+id/gpuControl"
+					android:orientation="vertical"
+					android:layout_height="wrap_content"
+					android:background="#FF333333"
+					android:padding="15dip">
+
+					<TextView
+						android:id="@+id/textView3"
+						android:layout_width="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:layout_height="wrap_content"
+						android:text="Governer" />
+					<Spinner
+						android:layout_height="wrap_content"
+						android:id="@+id/spinner1"
+						android:layout_width="match_parent"></Spinner>
+
+				</LinearLayout>
+			</LinearLayout>
+		</ScrollView>
+	</LinearLayout>
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_weight="1"
+		android:layout_alignParentBottom="true"
+		android:orientation="vertical"
+		android:layout_height="90dip">
+		<CheckBox
+			android:id="@+id/set_on_boot"
 			android:layout_height="wrap_content"
 			android:layout_width="fill_parent"
-			android:layout_below="@id/cpu1_freq_label"
-			android:id="@+id/refresh"
-			android:text="Refresh Clocks" />
-	</RelativeLayout>
-
-
-	<com.teamkang.fauxclock.ExpandingPreference
-		android:id="@+id/cpu_control_pref"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:padding="5dip" />
-
-	<RelativeLayout
-		android:layout_width="match_parent"
-		android:id="@+id/cpuControl"
-		android:padding="6dip"
-		android:orientation="vertical"
-		android:layout_height="wrap_content"
-		android:background="#FF333333">
-		<TextView
-			android:id="@+id/cpu_max_label"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:layout_below="@id/cpu_control_pref"
-			android:text="Max clock" />
-		<TextView
-			android:id="@+id/cpu_max_clock"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@id/cpu_control_pref"
-			android:text="0mhz" />
-		<SeekBar
-			android:layout_height="wrap_content"
-			android:id="@+id/cpu_max_seek"
-			android:layout_below="@id/cpu_max_label"
-			android:layout_width="match_parent" />
-		<TextView
-			android:id="@+id/cpu_min_label"
-			android:layout_width="wrap_content"
-			android:layout_below="@id/cpu_max_seek"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:text="Min clock" />
-		<TextView
-			android:id="@+id/cpu_min_clock"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@id/cpu_max_seek"
-			android:text="0mhz" />
-		<SeekBar
-			android:layout_height="wrap_content"
-			android:id="@+id/cpu_min_seek"
-			android:layout_below="@id/cpu_min_label"
-			android:layout_width="match_parent" />
-		<TextView
-			android:id="@+id/cpu_gov_label"
-			android:layout_below="@id/cpu_min_seek"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:text="Governer" />
-		<Spinner
-			android:layout_height="wrap_content"
-			android:id="@+id/cpu_gov_spinner"
-			android:layout_below="@id/cpu_gov_label"
-			android:layout_width="match_parent" />
-
-	</RelativeLayout>
-
-	<com.teamkang.fauxclock.ExpandingPreference
-		android:id="@+id/voltage_control_pref"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:padding="5dip" />
-
-	<RelativeLayout
-		android:layout_width="match_parent"
-		android:id="@+id/voltage_control"
-		android:padding="6dip"
-		android:orientation="vertical"
-		android:layout_height="wrap_content"
-		android:background="#FF333333">
-		<TextView
-			android:id="@+id/voltage_label"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:text="Global voltage" />
-
-		<TextView
-			android:id="@+id/voltage_delta"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@id/voltage_control_pref"
-			android:text="0 mv" />
-
-		<SeekBar
-			android:layout_height="wrap_content"
-			android:id="@+id/global_voltage_seekbar"
-			android:layout_below="@id/voltage_label"
-			android:layout_width="match_parent" />
-
-
-	</RelativeLayout>
-
-	<!-- GPU control here -->
-	<com.teamkang.fauxclock.ExpandingPreference
-		android:id="@+id/gpu_control_pref"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:padding="5dip" />
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:id="@+id/gpuControl"
-		android:orientation="vertical"
-		android:layout_height="wrap_content"
-		android:background="#FF333333"
-		android:padding="6dip">
-
-		<TextView
-			android:id="@+id/textView3"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:text="Governer" />
-		<Spinner
-			android:layout_height="wrap_content"
-			android:id="@+id/spinner1"
-			android:layout_width="match_parent"></Spinner>
-
+			android:text="Set on boot" />
 	</LinearLayout>
-
-
 </LinearLayout>
