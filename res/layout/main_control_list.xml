@@ -1,10 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:id="@+id/container">
+	android:id="@+id/container"
+	android:orientation="vertical">
+
+
+	<RelativeLayout
+		android:layout_height="wrap_content"
+		android:id="@+id/info"
+		android:layout_width="wrap_content"
+		android:layout_margin="5dip"
+		android:gravity="center">
+		<TextView
+			android:text="TextView"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:id="@+id/cpu0_freq"
+			android:layout_alignParentLeft="true"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"></TextView>
+		<TextView
+			android:text="cpu0 freq"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:id="@+id/cpu0_freq_label"
+			android:layout_width="wrap_content"
+			android:layout_below="@+id/cpu0_freq" />
+		<TextView
+			android:text="TextView"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:id="@+id/cpu1_freq"
+			android:layout_width="wrap_content"
+			android:layout_alignParentRight="true" />
+		<TextView
+			android:text="cpu1 freq"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:id="@+id/cpu1_freq_label"
+			android:layout_width="wrap_content"
+			android:layout_alignRight="@id/cpu1_freq"
+			android:layout_below="@id/cpu1_freq" />
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="fill_parent"
+			android:layout_below="@id/cpu1_freq_label"
+			android:id="@+id/refresh"
+			android:text="Refresh Clocks" />
+	</RelativeLayout>
+
 
 	<com.teamkang.fauxclock.ExpandingPreference
 		android:id="@+id/cpu_control_pref"

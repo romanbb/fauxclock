@@ -1,8 +1,8 @@
+
 package com.teamkang.fauxclock;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
@@ -11,201 +11,250 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
 
 public class FauxClockActivity extends Activity implements OnClickListener,
-		SeekBar.OnSeekBarChangeListener {
+        SeekBar.OnSeekBarChangeListener {
 
-	public static String TAG = "faux";
+    public static String TAG = "faux";
 
-	public boolean mAreCpuControlsVisible;
-	public RelativeLayout cpuLayout;
-	public LinearLayout gpuLayout;
-	public ExpandingPreference cpuPref;
-	public ExpandingPreference gpuPref;
-	public SeekBar cpuMaxSeek;
-	public SeekBar cpuMinSeek;
-	public TextView currentCpuMaxClock;
-	public TextView currentCpuMinClock;
+    public boolean mAreCpuControlsVisible;
+    public RelativeLayout cpuLayout;
+    public LinearLayout gpuLayout;
+    public ExpandingPreference cpuPref;
+    public ExpandingPreference gpuPref;
+    public SeekBar cpuMaxSeek;
+    public SeekBar cpuMinSeek;
+    public TextView currentCpuMaxClock;
+    public TextView currentCpuMinClock;
 
-	public HashMap<Integer, Integer> sensationTable;
-	public int[][] cputable = {
-			{ 192000, 310500, 384000, 432000, 486000, 540000, 594000, 648000,
-					702000, 756000, 810000, 864000, 918000, 972000, 102600,
-					1080000, 1134000, 1118800, 1242000, 1296000, 1350000,
-					1404000, 1458000, 1512000, 1566000 },
-			{ 812500, 812500, 812500, 812500, 837500, 580000, 862500, 875000,
-					900000, 925000, 937500, 962500, 962500, 962500, 975000,
-					987500, 1000000, 1012500, 1025000, 1050000, 1075000,
-					11000000, 1112500, 112500, 1150000 } };
+    public TextView currentCpu0Clock;
+    public TextView currentCpu1Clock;
 
-	public static int VOLTAGE = 1;
-	public static int FREQ = 0;
+    CpuController cpu;
 
-	// need to get phone specific frequencies
-	// /sys/devices/system/cpu/cpu0/cpufreq/available_frequencies
+    public int[][] cputable = {
+            {
+                    192000, 310500, 384000, 432000, 486000, 540000, 594000, 648000,
+                    702000, 756000, 810000, 864000, 918000, 972000, 102600,
+                    1080000, 1134000, 1118800, 1242000, 1296000, 1350000,
+                    1404000, 1458000, 1512000, 1566000
+            },
+            {
+                    812500, 812500, 812500, 812500, 837500, 580000, 862500, 875000,
+                    900000, 925000, 937500, 962500, 962500, 962500, 975000,
+                    987500, 1000000, 1012500, 1025000, 1050000, 1075000,
+                    11000000, 1112500, 112500, 1150000
+            }
+    };
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main_control_list);
+    public static int VOLTAGE = 1;
+    public static int FREQ = 0;
 
-		/* cpu */
-		cpuLayout = (RelativeLayout) findViewById(R.id.cpuControl);
-		cpuLayout.setVisibility(View.GONE);
+    // need to get phone specific frequencies
+    // /sys/devices/system/cpu/cpu0/cpufreq/available_frequencies
 
-		cpuPref = (ExpandingPreference) findViewById(R.id.cpu_control_pref);
-		cpuPref.setTitle("CPU Control");
-		cpuPref.setOnClickListener(this);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main_control_list);
 
-		cpuMaxSeek = (SeekBar) findViewById(R.id.cpu_max_seek);
-		cpuMaxSeek.setOnSeekBarChangeListener(this);
-		cpuMaxSeek.setMax(findMax(cputable, FREQ));
-		cpuMaxSeek.setProgress(800);
+        cpu = new CpuController(getApplicationContext());
+        cpu.readVddCpuTable();
 
-		cpuMinSeek = (SeekBar) findViewById(R.id.cpu_min_seek);
-		cpuMinSeek.setOnSeekBarChangeListener(this);
-		cpuMinSeek.setMax(findMax(cputable, FREQ));
-		cpuMinSeek.setProgress(200);
+        cputable = buildCpuTable();
 
-		currentCpuMaxClock = (TextView) findViewById(R.id.cpu_max_clock);
-		currentCpuMinClock = (TextView) findViewById(R.id.cpu_min_clock);
-		// cpuMaxSeek =
+        /* cpu */
+        cpuLayout = (RelativeLayout) findViewById(R.id.cpuControl);
+        cpuLayout.setVisibility(View.GONE);
 
-		/* gpu */
-		gpuLayout = (LinearLayout) findViewById(R.id.gpuControl);
-		gpuLayout.setVisibility(View.GONE);
+        cpuPref = (ExpandingPreference) findViewById(R.id.cpu_control_pref);
+        cpuPref.setTitle("CPU Control");
+        cpuPref.setOnClickListener(this);
 
-		gpuPref = (ExpandingPreference) findViewById(R.id.gpu_control_pref);
-		gpuPref.setTitle("GPU Control");
-		gpuPref.setOnClickListener(this);
+        cpuMaxSeek = (SeekBar) findViewById(R.id.cpu_max_seek);
+        cpuMaxSeek.setOnSeekBarChangeListener(this);
+        cpuMaxSeek.setMax(findMax(cputable, FREQ));
+        cpuMaxSeek.setProgress(Integer.parseInt(cpu.getMaxFreq()));
 
-		CpuController.readVddCpuTable();
+        cpuMinSeek = (SeekBar) findViewById(R.id.cpu_min_seek);
+        cpuMinSeek.setOnSeekBarChangeListener(this);
+        cpuMinSeek.setMax(findMax(cputable, FREQ));
+        cpuMinSeek.setProgress(Integer.parseInt(cpu.getMinFreq()));
 
-		// Log.e(TAG, formatMhz(972000 + ""));
-	}
+        currentCpuMaxClock = (TextView) findViewById(R.id.cpu_max_clock);
+        currentCpuMaxClock.setText(formatMhz(cpu.getMaxFreq()));
+        currentCpuMinClock = (TextView) findViewById(R.id.cpu_min_clock);
+        currentCpuMinClock.setText(formatMhz(cpu.getMinFreq()));
 
-	public void onClick(View v) {
-		boolean visible;
+        currentCpu0Clock = (TextView) findViewById(R.id.cpu0_freq);
+        currentCpu1Clock = (TextView) findViewById(R.id.cpu1_freq);
 
-		switch (v.getId()) {
-		case R.id.cpu_control_pref:
-			visible = cpuLayout.getVisibility() == View.VISIBLE;
+        findViewById(R.id.refresh).setOnClickListener(new OnClickListener() {
 
-			if (visible) {
-				cpuPref.setExpanded(false);
-				cpuLayout.setVisibility(View.GONE);
-			} else {
+            @Override
+            public void onClick(View v) {
+                refreshClocks();
 
-				cpuPref.setExpanded(true);
-				cpuLayout.setVisibility(View.VISIBLE);
-			}
-			break;
-		case R.id.gpu_control_pref:
-			visible = gpuLayout.getVisibility() == View.VISIBLE;
+            }
+        });
 
-			if (visible) {
-				gpuPref.setExpanded(false);
-				gpuLayout.setVisibility(View.GONE);
-			} else {
+        /* gpu */
+        gpuLayout = (LinearLayout) findViewById(R.id.gpuControl);
+        gpuLayout.setVisibility(View.GONE);
 
-				gpuPref.setExpanded(true);
-				gpuLayout.setVisibility(View.VISIBLE);
-			}
-			break;
-		}
-	}
+        gpuPref = (ExpandingPreference) findViewById(R.id.gpu_control_pref);
+        gpuPref.setTitle("GPU Control");
+        gpuPref.setOnClickListener(this);
 
-	public int findClosestIndex(int[][] cpu, int newValue) {
-		int nearest = -1;
-		int bestDistance = Integer.MAX_VALUE;
+        refreshClocks();
 
-		for (int i = 0; i < cpu[0].length; i++) {
-			int d = Math.abs(cpu[FREQ][i] - newValue);
+        // Log.e(TAG, formatMhz(972000 + ""));
+    }
 
-			if (d < bestDistance) {
-				// For the moment, this value is the nearest to the desired
-				// number...
-				bestDistance = d;
-				nearest = i;
-			}
-		}
-		return nearest;
-	}
+    public void refreshClocks() {
+        currentCpu0Clock.setText(formatMhz(cpu.getCurrentFreq(0)));
+        currentCpu1Clock.setText(formatMhz(cpu.getCurrentFreq(1)));
+    }
 
-	@Override
-	public void onProgressChanged(SeekBar seekBar, int progress,
-			boolean fromUser) {
+    public void onClick(View v) {
+        boolean visible;
 
-		switch (seekBar.getId()) {
-		case R.id.cpu_max_seek:
-			if (seekBar != null && currentCpuMaxClock != null) {
-				currentCpuMaxClock.setText(formatMhz(progress + ""));
+        switch (v.getId()) {
+            case R.id.cpu_control_pref:
+                visible = cpuLayout.getVisibility() == View.VISIBLE;
 
-				int closestIndex = 0;
-				closestIndex = findClosestIndex(cputable, progress);
-				seekBar.setProgress(cputable[FREQ][closestIndex]);
+                if (visible) {
+                    cpuPref.setExpanded(false);
+                    cpuLayout.setVisibility(View.GONE);
+                } else {
 
-			}
-			break;
-		case R.id.cpu_min_seek:
-			if (seekBar != null && currentCpuMaxClock != null) {
-				currentCpuMinClock.setText(formatMhz(progress + ""));
+                    cpuPref.setExpanded(true);
+                    cpuLayout.setVisibility(View.VISIBLE);
+                }
+                break;
+            case R.id.gpu_control_pref:
+                visible = gpuLayout.getVisibility() == View.VISIBLE;
 
-				int closestIndex = 0;
-				closestIndex = findClosestIndex(cputable, progress);
+                if (visible) {
+                    gpuPref.setExpanded(false);
+                    gpuLayout.setVisibility(View.GONE);
+                } else {
 
-				// check to make sure minimum value isn't higher than max
+                    gpuPref.setExpanded(true);
+                    gpuLayout.setVisibility(View.VISIBLE);
+                }
+                break;
+        }
+    }
 
-				if (cpuMaxSeek.getProgress() < cputable[FREQ][closestIndex]) {
-					seekBar.setProgress(cpuMaxSeek.getProgress());
-				} else {
+    public int[][] buildCpuTable() {
+        int[][] table;
 
-					seekBar.setProgress(cputable[FREQ][closestIndex]);
-				}
-			}
-			break;
-		}
+        table = new int[2][cpu.getFreqs().size()];
 
-	}
+        for (int i = 0; i < cpu.getFreqs().size(); i++) {
+            String key = cpu.getFreqs().get(i);
+            table[FREQ][i] = Integer.parseInt(key);
 
-	@Override
-	public void onStartTrackingTouch(SeekBar seekBar) {
-		// seekBar.
-	}
+            String voltage = cpu.settings.getString(key, "0");
+            table[VOLTAGE][i] = Integer.parseInt(voltage);
+        }
 
-	@Override
-	public void onStopTrackingTouch(SeekBar seekBar) {
+        return table;
+    }
 
-	}
+    public int findClosestIndex(int[][] cpu, int newValue) {
+        int nearest = -1;
+        int bestDistance = Integer.MAX_VALUE;
 
-	public static String formatMhz(String mhz) {
-		int s;
+        for (int i = 0; i < cpu[0].length; i++) {
+            int d = Math.abs(cpu[FREQ][i] - newValue);
 
-		if (mhz.length() == 6) {
-			s = Integer.parseInt(mhz) / 1000;
-			return s + " mhz";
-		} else if (mhz.length() == 7) {
-			double ghz = Integer.parseInt(mhz) / 1000000.0;
-			DecimalFormat dF = new DecimalFormat("###.00#");
-			String formatted = dF.format(ghz);
+            if (d < bestDistance) {
+                // For the moment, this value is the nearest to the desired
+                // number...
+                bestDistance = d;
+                nearest = i;
+            }
+        }
+        return nearest;
+    }
 
-			return formatted + " ghz";
-		} else {
-			return "#";
-		}
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress,
+            boolean fromUser) {
 
-	}
+        switch (seekBar.getId()) {
+            case R.id.cpu_max_seek:
+                if (seekBar != null && currentCpuMaxClock != null) {
+                    currentCpuMaxClock.setText(formatMhz(progress + ""));
 
-	public static int findMax(int[][] array, int index2) {
-		int max = Integer.MIN_VALUE;
+                    int closestIndex = 0;
+                    closestIndex = findClosestIndex(cputable, progress);
+                    seekBar.setProgress(cputable[FREQ][closestIndex]);
+                    cpu.setMaxFreq(cputable[FREQ][closestIndex] + "");
 
-		for (int i = 0; i < array[0].length; i++) {
-			if (array[index2][i] > max) {
-				max = array[index2][i];
-			}
-		}
+                }
+                break;
+            case R.id.cpu_min_seek:
+                if (seekBar != null && currentCpuMaxClock != null) {
+                    currentCpuMinClock.setText(formatMhz(progress + ""));
 
-		return max;
-	}
+                    int closestIndex = 0;
+                    closestIndex = findClosestIndex(cputable, progress);
+
+                    // check to make sure minimum value isn't higher than max
+
+                    if (cpuMaxSeek.getProgress() < cputable[FREQ][closestIndex]) {
+                        // set previous
+                        seekBar.setProgress(cpuMaxSeek.getProgress());
+                    } else {
+                        seekBar.setProgress(cputable[FREQ][closestIndex]);
+                        cpu.setMinFreq(cputable[FREQ][closestIndex] + "");
+                    }
+                }
+                break;
+        }
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        // seekBar.
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    public static String formatMhz(String mhz) {
+        int s;
+
+        if (mhz.length() == 6) {
+            s = Integer.parseInt(mhz) / 1000;
+            return s + " mhz";
+        } else if (mhz.length() == 7) {
+            double ghz = Integer.parseInt(mhz) / 1000000.0;
+            DecimalFormat dF = new DecimalFormat("###.00#");
+            String formatted = dF.format(ghz);
+
+            return formatted + " ghz";
+        } else {
+            return "#";
+        }
+
+    }
+
+    public static int findMax(int[][] array, int index2) {
+        int max = Integer.MIN_VALUE;
+
+        for (int i = 0; i < array[0].length; i++) {
+            if (array[index2][i] > max) {
+                max = array[index2][i];
+            }
+        }
+
+        return max;
+    }
 }
