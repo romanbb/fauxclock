@@ -167,6 +167,7 @@ public class CpuController {
                 editor.putString("cpu0_min", newFreq).apply();
                 return true;
             case 1:
+                pingCpu1();
                 if (ShellInterface.isSuAvailable()) {
                     ShellInterface.runCommand("echo \"" + newFreq + "\" > "
                             + CPU1_MIN_FREQ_PATH);
@@ -208,6 +209,7 @@ public class CpuController {
                 editor.putString("cpu0_max", newFreq).apply();
                 return true;
             case 1:
+                pingCpu1();
                 if (ShellInterface.isSuAvailable()) {
                     ShellInterface.runCommand("echo \"" + newFreq + "\" > "
                             + CPU1_MAX_FREQ_PATH);
