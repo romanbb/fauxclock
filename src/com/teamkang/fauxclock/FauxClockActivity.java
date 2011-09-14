@@ -146,7 +146,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
                 String selectedGov = (String) parent.getSelectedItem();
 
                 cpu.setGov(selectedGov);
-
+                
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
