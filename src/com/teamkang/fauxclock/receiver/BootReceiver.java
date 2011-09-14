@@ -22,9 +22,10 @@ public class BootReceiver extends BroadcastReceiver {
 
             cpu.setGov(cpu.settings.getString("cpu_gov", cpu.getCurrentActiveGov()));
             cpu.setMinFreq(cpu.settings.getString("cpu0_min_freq",
-                    cpu.getMinFreq(0)));
+                    cpu.getMinFreq()));
             cpu.setMaxFreq(cpu.settings.getString("cpu0_max_freq",
-                    cpu.getMaxFreq(0)));
+                    cpu.getMaxFreq()));
+            cpu.setGlobalVoltageDelta(Integer.parseInt(cpu.settings.getString("voltage_delta", "0")));
 
         }
 

@@ -33,6 +33,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
     public TextView currentCpuMaxClock;
     public TextView currentCpuMinClock;
     public Spinner cpuGovSpinner;
+    public Spinner gpuGovSpinner;
 
     public TextView currentCpu0Clock;
     public TextView currentCpu1Clock;
@@ -45,6 +46,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
     public CheckBox enableOnBotCheckBox;
 
     CpuController cpu;
+    GpuController gpu;
 
     public int[][] cputable = {
             {
@@ -75,6 +77,9 @@ public class FauxClockActivity extends Activity implements OnClickListener,
         cpu = new CpuController(getApplicationContext());
         cpu.readVddCpuTable();
         cpu.readGovs();
+
+        gpu = new GpuController(getApplicationContext());
+        gpu.readGpuSettings();
 
         cputable = buildCpuTable();
 
@@ -146,7 +151,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
                 String selectedGov = (String) parent.getSelectedItem();
 
                 cpu.setGov(selectedGov);
-                
+
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
@@ -162,7 +167,29 @@ public class FauxClockActivity extends Activity implements OnClickListener,
         gpuPref = (ExpandingPreference) findViewById(R.id.gpu_control_pref);
         gpuPref.setTitle("GPU Control");
         gpuPref.setOnClickListener(this);
-        gpuPref.setEnabled(false);
+        gpuGovSpinner = (Spinner) findViewById(R.id.gpu_gov_spinner);
+        ArrayAdapter<String> gpuGovSpinnerAdapter = new ArrayAdapter<String>(
+                getApplicationContext(), android.R.layout.simple_spinner_item,
+                gpu.govs);
+        gpuGovSpinnerAdapter
+                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        gpuGovSpinner.setAdapter(gpuGovSpinnerAdapter);
+        gpuGovSpinner.setSelection(gpuGovSpinnerAdapter.getPosition(gpu.getCurrentActiveGov()));
+        gpuGovSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+            public void onItemSelected(AdapterView<?> parent, View view,
+                    int position, long id) {
+                String selectedGov = (String) parent.getSelectedItem();
+
+                gpu.setGpuGoverner(selectedGov);
+
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {
+                // TODO Auto-generated method stub
+
+            }
+        });
 
         enableOnBotCheckBox = (CheckBox) findViewById(R.id.set_on_boot);
         enableOnBotCheckBox.setChecked(cpu.settings.getBoolean("load_on_startup", false));
@@ -177,6 +204,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
     public void refreshClocks() {
         currentCpu0Clock.setText(formatMhz(cpu.getCurrentFreq(0)));
+        cpu.pingCpu1();
         currentCpu1Clock.setText(formatMhz(cpu.getCurrentFreq(1)));
     }
 
@@ -204,17 +232,17 @@ public class FauxClockActivity extends Activity implements OnClickListener,
                 }
                 break;
             case R.id.gpu_control_pref:
-                //
-                // visible = gpuLayout.getVisibility() == View.VISIBLE;
-                //
-                // if (visible) {
-                // gpuPref.setExpanded(false);
-                // gpuLayout.setVisibility(View.GONE);
-                // } else {
-                //
-                // gpuPref.setExpanded(true);
-                // gpuLayout.setVisibility(View.VISIBLE);
-                // }
+
+                visible = gpuLayout.getVisibility() == View.VISIBLE;
+
+                if (visible) {
+                    gpuPref.setExpanded(false);
+                    gpuLayout.setVisibility(View.GONE);
+                } else {
+
+                    gpuPref.setExpanded(true);
+                    gpuLayout.setVisibility(View.VISIBLE);
+                }
                 break;
             case R.id.voltage_control_pref:
                 visible = voltageLayout.getVisibility() == View.VISIBLE;

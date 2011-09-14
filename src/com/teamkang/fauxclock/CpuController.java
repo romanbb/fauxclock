@@ -1,15 +1,14 @@
 
 package com.teamkang.fauxclock;
 
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-
 import ru.org.amip.MarketAccess.utils.ShellInterface;
-import android.content.BroadcastReceiver;
+
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class CpuController {
 
@@ -79,6 +78,12 @@ public class CpuController {
         }
 
         editor.apply();
+    }
+
+    public void pingCpu1() {
+        if (ShellInterface.isSuAvailable()) {
+            ShellInterface.runCommand("echo 1 > /sys/devices/system/cpu/cpu1/online");
+        }
     }
 
     public ArrayList<String> getFreqs() {
@@ -221,7 +226,15 @@ public class CpuController {
      * @return
      */
     public String getMinFreq() {
-        return getMinFreq(0);
+        int min = Integer.MAX_VALUE;
+
+        for (String freq : freqs) {
+            int f = Integer.parseInt(freq);
+
+            if (f < min)
+                min = f;
+        }
+        return min + "";
     }
 
     /**
@@ -255,7 +268,15 @@ public class CpuController {
      * @return
      */
     public String getMaxFreq() {
-        return getMaxFreq(0);
+        int max = 0;
+
+        for (String freq : freqs) {
+            int f = Integer.parseInt(freq);
+
+            if (f > max)
+                max = f;
+        }
+        return max + "";
     }
 
     /**
