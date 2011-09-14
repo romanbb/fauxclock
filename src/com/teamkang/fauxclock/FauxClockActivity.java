@@ -24,7 +24,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
     public boolean mAreCpuControlsVisible;
     public RelativeLayout cpuLayout;
-    public LinearLayout gpuLayout;
+    public RelativeLayout gpuLayout;
     public ExpandingPreference cpuPref;
     public ExpandingPreference gpuPref;
     public ExpandingPreference voltagePref;
@@ -34,6 +34,8 @@ public class FauxClockActivity extends Activity implements OnClickListener,
     public TextView currentCpuMinClock;
     public Spinner cpuGovSpinner;
     public Spinner gpuGovSpinner;
+    public SeekBar gpuIOFracSeek;
+    public TextView gpuIOFracValue;
 
     public TextView currentCpu0Clock;
     public TextView currentCpu1Clock;
@@ -161,7 +163,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
         });
 
         /* gpu */
-        gpuLayout = (LinearLayout) findViewById(R.id.gpuControl);
+        gpuLayout = (RelativeLayout) findViewById(R.id.gpuControl);
         gpuLayout.setVisibility(View.GONE);
 
         gpuPref = (ExpandingPreference) findViewById(R.id.gpu_control_pref);
@@ -190,6 +192,13 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
             }
         });
+
+        gpuIOFracSeek = (SeekBar) findViewById(R.id.seekbar_gpu_io_frac);
+        gpuIOFracSeek.setMax(100);
+        gpuIOFracSeek.setProgress(33);
+        gpuIOFracSeek.setOnSeekBarChangeListener(this);
+
+        gpuIOFracValue = (TextView) findViewById(R.id.gpu_io_frac_value);
 
         enableOnBotCheckBox = (CheckBox) findViewById(R.id.set_on_boot);
         enableOnBotCheckBox.setChecked(cpu.settings.getBoolean("load_on_startup", false));
@@ -357,6 +366,24 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
                 }
                 break;
+            case R.id.seekbar_gpu_io_frac:
+                if (seekBar != null && voltageDelta != null) {
+
+                    int max = 80;
+                    int min = 20;
+
+                    if (progress >= min && progress <= max) {
+                        gpuIOFracValue.setText(progress + "");
+                        seekBar.setProgress(progress);
+                    } else if (progress > 80) {
+                        gpuIOFracValue.setText(80 + "");
+                        seekBar.setProgress(80);
+                    } else {
+                        gpuIOFracValue.setText(20 + "");
+                        seekBar.setProgress(20);
+                    }
+                }
+                break;
         }
 
     }
@@ -370,6 +397,10 @@ public class FauxClockActivity extends Activity implements OnClickListener,
             case R.id.global_voltage_seekbar:
                 cpu.setGlobalVoltageDelta(seekBar.getProgress()
                         - (seekBar.getMax() / 2));
+                break;
+            case R.id.seekbar_gpu_io_frac:
+                gpu.setGpuIOFraction(seekBar.getProgress());
+                break;
         }
     }
 

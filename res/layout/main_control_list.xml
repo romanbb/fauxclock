@@ -177,7 +177,7 @@
 					android:layout_height="wrap_content"
 					android:padding="10dip" />
 
-				<LinearLayout
+				<RelativeLayout
 					android:layout_width="match_parent"
 					android:id="@+id/gpuControl"
 					android:orientation="vertical"
@@ -186,17 +186,42 @@
 					android:padding="15dip">
 
 					<TextView
-						android:id="@+id/textView3"
+						android:id="@+id/gpu_governor_label"
 						android:layout_width="wrap_content"
 						android:textAppearance="?android:attr/textAppearanceSmall"
 						android:layout_height="wrap_content"
+						android:layout_below="@id/gpu_control_pref"
 						android:text="Governer" />
 					<Spinner
 						android:layout_height="wrap_content"
 						android:id="@+id/gpu_gov_spinner"
+						android:layout_width="match_parent"
+						android:layout_below="@id/gpu_governor_label" />
+
+					<TextView
+						android:id="@+id/gpu_io_frac_label"
+						android:layout_width="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:layout_height="wrap_content"
+						android:text="GPU IO Fraction"
+						android:layout_below="@id/gpu_gov_spinner" />
+
+					<TextView
+						android:id="@+id/gpu_io_frac_value"
+						android:layout_width="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:layout_height="wrap_content"
+						android:text="33"
+						android:layout_below="@id/gpu_gov_spinner"
+						android:layout_alignParentRight="true" />
+
+					<SeekBar
+						android:layout_height="wrap_content"
+						android:id="@+id/seekbar_gpu_io_frac"
+						android:layout_below="@id/gpu_io_frac_label"
 						android:layout_width="match_parent" />
 
-				</LinearLayout>
+				</RelativeLayout>
 			</LinearLayout>
 		</ScrollView>
 	</LinearLayout>
