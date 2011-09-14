@@ -1,7 +1,7 @@
-
 package com.teamkang.fauxclock.receiver;
 
 import com.teamkang.fauxclock.CpuController;
+import com.teamkang.fauxclock.GpuController;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,24 +10,17 @@ import android.util.Log;
 
 public class BootReceiver extends BroadcastReceiver {
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Log.e("BootReceiver", "Booted, starting cpu reading!");
-        CpuController cpu = new CpuController(context);
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		Log.e("BootReceiver", "Booted, starting cpu reading!");
+		CpuController cpu = new CpuController(context);
 
-        if (cpu.settings.getBoolean("load_on_startup", false)) {
+		if (cpu.settings.getBoolean("load_on_startup", false)) {
+			cpu.loadValuesFromSettings();
 
-            cpu.readVddCpuTable();
-            cpu.readGovs();
+			GpuController gpu = new GpuController(context);
+			gpu.loadValuesFromSettings();
+		}
 
-            cpu.setGov(cpu.settings.getString("cpu_gov", cpu.getCurrentActiveGov()));
-            cpu.setMinFreq(cpu.settings.getString("cpu0_min_freq",
-                    cpu.getMinFreq()));
-            cpu.setMaxFreq(cpu.settings.getString("cpu0_max_freq",
-                    cpu.getMaxFreq()));
-            cpu.setGlobalVoltageDelta(Integer.parseInt(cpu.settings.getString("voltage_delta", "0")));
-
-        }
-
-    }
+	}
 }
