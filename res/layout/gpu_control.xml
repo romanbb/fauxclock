@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+
+	<!-- GPU control here -->
+	<com.teamkang.fauxclock.ExpandingPreference
+		android:id="@+id/gpu_control_pref"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="10dip" />
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:id="@+id/gpuControl"
+		android:orientation="vertical"
+		android:layout_height="wrap_content"
+		android:background="#FF333333"
+		android:padding="15dip">
+
+		<TextView
+			android:id="@+id/gpu_governor_label"
+			android:layout_width="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/gpu_control_pref"
+			android:text="Governer" />
+		<Spinner
+			android:layout_height="wrap_content"
+			android:id="@+id/gpu_gov_spinner"
+			android:layout_width="match_parent"
+			android:layout_below="@id/gpu_governor_label" />
+
+		<TextView
+			android:id="@+id/gpu_io_frac_label"
+			android:layout_width="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:layout_height="wrap_content"
+			android:text="GPU IO Fraction"
+			android:layout_below="@id/gpu_gov_spinner" />
+
+		<TextView
+			android:id="@+id/gpu_io_frac_value"
+			android:layout_width="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:layout_height="wrap_content"
+			android:text="33"
+			android:layout_below="@id/gpu_gov_spinner"
+			android:layout_alignParentRight="true" />
+
+		<SeekBar
+			android:layout_height="wrap_content"
+			android:id="@+id/seekbar_gpu_io_frac"
+			android:layout_below="@id/gpu_io_frac_label"
+			android:layout_width="match_parent" />
+
+	</RelativeLayout>
+</LinearLayout>
