@@ -6,9 +6,10 @@ import java.util.StringTokenizer;
 import ru.org.amip.MarketAccess.utils.ShellInterface;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
-public class CpuController {
+public class CpuVddController implements CpuInterface {
 
 	// cpu
 	private static String cpuTablePath = "/sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels";
@@ -39,7 +40,7 @@ public class CpuController {
 
 	public static final String TAG = "CpuController";
 
-	public CpuController(Context c) {
+	public CpuVddController(Context c) {
 		mContext = c;
 
 		freqs = new ArrayList<String>();
@@ -52,16 +53,20 @@ public class CpuController {
 
 	public void loadValuesFromSettings() {
 		readVddCpuTable();
-		readGovs();
+		readGovernersFromSystem();
 
 		try {
-			setGov(settings.getString("cpu_gov", getCurrentActiveGov()));
+			setGoverner(settings.getString("cpu_gov", getCurrentGoverner()));
 
-			setMinFreq(0, settings.getString("cpu0_min_freq", getMinFreq()));
-			setMaxFreq(0, settings.getString("cpu0_max_freq", getMaxFreq()));
+			setMinFreq(0, settings.getString("cpu0_min_freq",
+					getLowestFreqAvailable()));
+			setMaxFreq(0, settings.getString("cpu0_max_freq",
+					getHighestFreqAvailable()));
 
-			setMinFreq(1, settings.getString("cpu1_min_freq", getMinFreq()));
-			setMaxFreq(1, settings.getString("cpu1_max_freq", getMaxFreq()));
+			setMinFreq(1, settings.getString("cpu1_min_freq",
+					getLowestFreqAvailable()));
+			setMaxFreq(1, settings.getString("cpu1_max_freq",
+					getHighestFreqAvailable()));
 
 			setGlobalVoltageDelta(Integer.parseInt(settings.getString(
 					"voltage_delta", "0")));
@@ -93,10 +98,20 @@ public class CpuController {
 			freqs.add(freq);
 			editor.putString(freq, voltage);
 
-			Log.e("FAUXISAKANGER", "Freq: " + freq + ", voltage: " + voltage);
+			Log.e(TAG, "Freq: " + freq + ", voltage: " + voltage);
 		}
 
 		editor.apply();
+	}
+
+	public String getCurrentGoverner() {
+		String g = "";
+
+		if (ShellInterface.isSuAvailable()) {
+			g = ShellInterface.getProcessOutput("cat " + CPU_CURRENT_GOV);
+		}
+
+		return g;
 	}
 
 	public void pingCpu1() {
@@ -106,15 +121,25 @@ public class CpuController {
 		}
 	}
 
+	public String getMaxFreqFromSettings() {
+		return settings.getString("cpu0_max", getMaxFreqSet());
+	}
+
 	public String getMaxFreqFromSettings(int whichCpu) {
 
-		return settings.getString("cpu" + whichCpu + "_max", getMaxFreq(0));
+		return settings.getString("cpu" + whichCpu + "_max",
+				getMaxFreqSet(whichCpu));
 
+	}
+
+	public String getMinFreqFromSettings() {
+		return settings.getString("cpu0_min", getMinFreqSet());
 	}
 
 	public String getMinFreqFromSettings(int whichCpu) {
 
-		return settings.getString("cpu" + whichCpu + "_min", getMinFreq(0));
+		return settings.getString("cpu" + whichCpu + "_min",
+				getMinFreqSet(whichCpu));
 
 	}
 
@@ -126,17 +151,16 @@ public class CpuController {
 		return govs;
 	}
 
-	public String getCurrentActiveGov() {
-		String g = "";
+	public String[] getAvailableGoverners() {
+		String[] arr = new String[govs.size()];
 
-		if (ShellInterface.isSuAvailable()) {
-			g = ShellInterface.getProcessOutput("cat " + CPU_CURRENT_GOV);
+		for (int i = 0; i < govs.size(); i++) {
+			arr[i] = govs.get(i);
 		}
-
-		return g;
+		return arr;
 	}
 
-	public void readGovs() {
+	public void readGovernersFromSystem() {
 		String output = "";
 
 		// read table into string
@@ -157,7 +181,7 @@ public class CpuController {
 		}
 	}
 
-	public boolean setGov(String newGov) {
+	public boolean setGoverner(String newGov) {
 		if (!isValidGov(newGov))
 			return false;
 
@@ -260,7 +284,7 @@ public class CpuController {
 	 * 
 	 * @return
 	 */
-	public String getMinFreq() {
+	public String getLowestFreqAvailable() {
 		int min = Integer.MAX_VALUE;
 
 		for (String freq : freqs) {
@@ -279,7 +303,7 @@ public class CpuController {
 	 *            should be 0 or 1
 	 * @return null if invalid param is sent in
 	 */
-	public String getMinFreq(int whichCpu) {
+	public String getMinFreqSet(int whichCpu) {
 		switch (whichCpu) {
 		case 0:
 			if (ShellInterface.isSuAvailable()) {
@@ -303,7 +327,7 @@ public class CpuController {
 	 * 
 	 * @return
 	 */
-	public String getMaxFreq() {
+	public String getHighestFreqAvailable() {
 		int max = 0;
 
 		for (String freq : freqs) {
@@ -315,6 +339,14 @@ public class CpuController {
 		return max + "";
 	}
 
+	public String getMaxFreqSet() {
+		return getMaxFreqSet(0);
+	}
+
+	public String getMinFreqSet() {
+		return getMinFreqSet(0);
+	}
+
 	/**
 	 * returns max cpu freq of specified cpu
 	 * 
@@ -322,7 +354,7 @@ public class CpuController {
 	 *            should be 0 or 1
 	 * @return null if invalid param is sent in
 	 */
-	public String getMaxFreq(int whichCpu) {
+	public String getMaxFreqSet(int whichCpu) {
 		switch (whichCpu) {
 		case 0:
 			if (ShellInterface.isSuAvailable()) {
@@ -346,8 +378,8 @@ public class CpuController {
 	 * 
 	 * @return
 	 */
-	public String getCurrentFreq() {
-		return getCurrentFreq(0);
+	public String getCurrentFrequency() {
+		return getCurrentFrequency(0);
 	}
 
 	/**
@@ -357,7 +389,7 @@ public class CpuController {
 	 *            should be 0 or 1
 	 * @return null if invalid param is sent in
 	 */
-	public String getCurrentFreq(int whichCpu) {
+	public String getCurrentFrequency(int whichCpu) {
 		switch (whichCpu) {
 		case 0:
 			if (ShellInterface.isSuAvailable()) {
@@ -381,16 +413,17 @@ public class CpuController {
 	 * @param delta
 	 *            in MILLIVOLTS! 25 mV, 50 mV, 75 mV
 	 */
-	public void setGlobalVoltageDelta(int newDeltaFromZero) {
+	public boolean setGlobalVoltageDelta(int newDeltaFromZero) {
 		int diff = Math.abs(newDeltaFromZero - currentVoltageDelta);
 
 		if (newDeltaFromZero - currentVoltageDelta < 0)
 			diff *= -1;
 
 		if (diff == 0) {
-			return;
+			return false;
 		} else {
 			applyVoltageDelta(diff);
+			return true;
 		}
 
 	}
@@ -432,12 +465,60 @@ public class CpuController {
 	}
 
 	public boolean isValidGov(String gov) {
-		return govs.contains((String) gov);
+
+		if (govs.isEmpty()) {
+			Log.e(TAG,
+					"can't execute isValidGov because there are no govs to compare to!");
+		}
+
+		for (String g : govs) {
+			if (g.equals(gov)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean isValidFreq(String freq) {
-		return freqs.contains((String) freq);
+		if (freqs.isEmpty()) {
+			Log.e(TAG,
+					"can't execute isValidFreq because there are no freqs to compare to!");
+		}
 
+		for (String f : freqs) {
+			if (f.equals(freq)) {
+				return true;
+			}
+		}
+		return false;
+
+	}
+
+	public boolean setVoltageDeltaForFrequency(int newDelta, String frequency) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public SharedPreferences getSettings() {
+		return settings;
+	}
+
+	public Editor getEditor() {
+		return editor;
+	}
+
+	public String[] getAvailableFrequencies() {
+		String[] arr = new String[freqs.size()];
+
+		for (int i = 0; i < freqs.size(); i++) {
+			arr[i] = freqs.get(i);
+		}
+
+		return arr;
+	}
+
+	public int getVoltageInterval() {
+		return voltageInterval;
 	}
 
 }

@@ -1,20 +1,20 @@
 package com.teamkang.fauxclock;
 
+import java.text.DecimalFormat;
+
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-
-import java.text.DecimalFormat;
 
 public class FauxClockActivity extends Activity implements OnClickListener,
 		SeekBar.OnSeekBarChangeListener {
@@ -44,9 +44,9 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 	public SeekBar voltageSeek;
 	public RelativeLayout voltageLayout;
 
-	public CheckBox enableOnBotCheckBox;
+	public CheckBox enableOnBootCheckBox;
 
-	CpuController cpu;
+	CpuInterface cpu;
 	GpuController gpu;
 
 	public int[][] cputable;
@@ -62,7 +62,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_control_list);
 
-		cpu = new CpuController(getApplicationContext());
+		cpu = new CpuVddController(getApplicationContext());
 		cpu.loadValuesFromSettings();
 
 		gpu = new GpuController(getApplicationContext());
@@ -80,18 +80,18 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
 		cpuMaxSeek = (SeekBar) findViewById(R.id.cpu_max_seek);
 		cpuMaxSeek.setOnSeekBarChangeListener(this);
-		cpuMaxSeek.setMax(Integer.parseInt(cpu.getMaxFreq()));
-		cpuMaxSeek.setProgress(Integer.parseInt(cpu.getMaxFreq(0)));
+		cpuMaxSeek.setMax(Integer.parseInt(cpu.getHighestFreqAvailable()));
+		cpuMaxSeek.setProgress(Integer.parseInt(cpu.getMaxFreqSet()));
 
 		cpuMinSeek = (SeekBar) findViewById(R.id.cpu_min_seek);
 		cpuMinSeek.setOnSeekBarChangeListener(this);
-		cpuMinSeek.setMax(Integer.parseInt(cpu.getMaxFreq()));
-		cpuMinSeek.setProgress(Integer.parseInt(cpu.getMinFreq(0)));
+		cpuMinSeek.setMax(Integer.parseInt(cpu.getHighestFreqAvailable()));
+		cpuMinSeek.setProgress(Integer.parseInt(cpu.getMinFreqSet()));
 
 		currentCpuMaxClock = (TextView) findViewById(R.id.cpu_max_clock);
-		currentCpuMaxClock.setText(formatMhz(cpu.getMaxFreq()));
+		currentCpuMaxClock.setText(formatMhz(cpu.getHighestFreqAvailable()));
 		currentCpuMinClock = (TextView) findViewById(R.id.cpu_min_clock);
-		currentCpuMinClock.setText(formatMhz(cpu.getMinFreq()));
+		currentCpuMinClock.setText(formatMhz(cpu.getLowestFreqAvailable()));
 
 		currentCpu0Clock = (TextView) findViewById(R.id.cpu0_freq);
 		currentCpu1Clock = (TextView) findViewById(R.id.cpu1_freq);
@@ -121,23 +121,21 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
 		/* governer */
 		cpuGovSpinner = (Spinner) findViewById(R.id.cpu_gov_spinner);
-		String[] govs = (String[]) cpu.getGovs().toArray(
-				new String[cpu.getGovs().size()]);
 		ArrayAdapter<String> govSpinnerAdapter = new ArrayAdapter<String>(
 				getApplicationContext(), android.R.layout.simple_spinner_item,
-				govs);
+				cpu.getAvailableGoverners());
 		govSpinnerAdapter
 				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		cpuGovSpinner.setAdapter(govSpinnerAdapter);
 		cpuGovSpinner.setSelection(govSpinnerAdapter.getPosition(cpu
-				.getCurrentActiveGov()));
+				.getCurrentGoverner()));
 		cpuGovSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
 				String selectedGov = (String) parent.getSelectedItem();
 
-				cpu.setGov(selectedGov);
+				cpu.setGoverner(selectedGov);
 
 			}
 
@@ -186,10 +184,12 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
 		gpuIOFracValue = (TextView) findViewById(R.id.gpu_io_frac_value);
 
-		enableOnBotCheckBox = (CheckBox) findViewById(R.id.set_on_boot);
-		enableOnBotCheckBox.setChecked(cpu.settings.getBoolean(
-				"load_on_startup", false));
-		enableOnBotCheckBox.setOnClickListener(this);
+		enableOnBootCheckBox = (CheckBox) findViewById(R.id.set_on_boot);
+		boolean checked = cpu.getSettings().getBoolean(
+				"load_on_startup", false);
+		Log.e(TAG, "load on startup is: " + checked);
+		enableOnBootCheckBox.setChecked(checked);
+		enableOnBootCheckBox.setOnClickListener(this);
 
 		refreshClocks();
 
@@ -199,21 +199,24 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 	}
 
 	public void refreshClocks() {
-		currentCpu0Clock.setText(formatMhz(cpu.getCurrentFreq(0)));
-		cpu.pingCpu1();
-		currentCpu1Clock.setText(formatMhz(cpu.getCurrentFreq(1)));
+
+		// using dual core settings here, come up with something more clever
+		currentCpu0Clock.setText(formatMhz(cpu.getCurrentFrequency()));
+		((CpuVddController) cpu).pingCpu1();
+		currentCpu1Clock.setText(formatMhz(((CpuVddController) cpu)
+				.getCurrentFrequency(1)));
 	}
 
 	public void onClick(View v) {
-		findViewById(R.id.container).refreshDrawableState();
+
 		boolean visible;
 
 		switch (v.getId()) {
 		case R.id.set_on_boot:
 			boolean checked = ((CheckBox) v).isChecked();
 
-			cpu.editor.putBoolean("load_on_startup", checked);
-
+			cpu.getEditor().putBoolean("load_on_startup", checked).apply();
+			Log.e(TAG, "set load on startup to be: " + checked);
 			break;
 		case R.id.cpu_control_pref:
 			visible = cpuLayout.getVisibility() == View.VISIBLE;
@@ -258,13 +261,15 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 	public int[][] buildCpuTable() {
 		int[][] table;
 
-		table = new int[2][cpu.getFreqs().size()];
+		String[] freqs = cpu.getAvailableFrequencies();
 
-		for (int i = 0; i < cpu.getFreqs().size(); i++) {
-			String key = cpu.getFreqs().get(i);
+		table = new int[2][freqs.length];
+
+		for (int i = 0; i < freqs.length; i++) {
+			String key = freqs[i];
 			table[FREQ][i] = Integer.parseInt(key);
 
-			String voltage = cpu.settings.getString(key, "0");
+			String voltage = cpu.getSettings().getString(key, "0");
 			table[VOLTAGE][i] = Integer.parseInt(voltage);
 		}
 
@@ -326,10 +331,14 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
 				int zero = seekBar.getMax() / 2;
 
-				for (int i = seekBar.getMax() * -1; i <= seekBar.getMax(); i += cpu.voltageInterval) {
-					if (progress >= i && progress < i + cpu.voltageInterval) {
+				for (int i = seekBar.getMax() * -1; i <= seekBar.getMax(); i += cpu
+						.getVoltageInterval()) {
+					if (progress >= i
+							&& progress < i + cpu.getVoltageInterval()) {
+
 						int diffleft = progress - i;
-						int diffright = (i + cpu.voltageInterval) - progress;
+						int diffright = (i + cpu.getVoltageInterval())
+								- progress;
 
 						if (diffleft < diffright) {
 							int current = i - zero;
@@ -340,8 +349,8 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
 							return;
 						} else {
-							int next = (i - zero) + cpu.voltageInterval;
-							seekBar.setProgress((i + cpu.voltageInterval));
+							int next = (i - zero) + cpu.getVoltageInterval();
+							seekBar.setProgress((i + cpu.getVoltageInterval()));
 							voltageDelta.setText(formatVolts(next));
 							// cpu.setGlobalVoltageDelta((i - zero));
 
