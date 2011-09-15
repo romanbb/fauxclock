@@ -1,3 +1,4 @@
+
 package com.teamkang.fauxclock.receiver;
 
 import com.teamkang.fauxclock.CpuVddController;
@@ -10,17 +11,17 @@ import android.util.Log;
 
 public class BootReceiver extends BroadcastReceiver {
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		Log.e("BootReceiver", "Booted, starting cpu reading!");
-		CpuVddController cpu = new CpuVddController(context);
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Log.e("BootReceiver", "Booted, starting cpu reading!");
+        CpuVddController cpu = new CpuVddController(context);
 
-		if (cpu.settings.getBoolean("load_on_startup", false)) {
-			cpu.loadValuesFromSettings();
+        if (cpu.getSettings().getBoolean("load_on_startup", false)) {
+            cpu.loadValuesFromSettings();
 
-			GpuController gpu = new GpuController(context);
-			gpu.loadValuesFromSettings();
-		}
+            GpuController gpu = new GpuController(context);
+            gpu.loadValuesFromSettings();
+        }
 
-	}
+    }
 }

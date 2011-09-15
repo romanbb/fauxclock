@@ -1,47 +1,50 @@
+
 package com.teamkang.fauxclock;
 
 import android.content.SharedPreferences;
 
 public interface CpuInterface {
 
-	// Settings
-	void loadValuesFromSettings();
+    // Settings
+    void loadValuesFromSettings();
 
-	SharedPreferences getSettings();
+    SharedPreferences getSettings();
 
-	SharedPreferences.Editor getEditor();
+    SharedPreferences.Editor getEditor();
 
-	// governer stuff
-	void readGovernersFromSystem();
+    // governer stuff
+    void readGovernersFromSystem();
 
-	boolean setGoverner(String newGov);
+    boolean setGoverner(String newGov);
 
-	String getCurrentGoverner();
+    String getCurrentGoverner();
 
-	String[] getAvailableGoverners();
+    String[] getAvailableGoverners();
 
-	// voltage stuff
-	boolean setGlobalVoltageDelta(int newDelta);
+    // voltage stuff
+    boolean setGlobalVoltageDelta(int newDelta);
 
-	boolean setVoltageDeltaForFrequency(int newDelta, String frequency);
+    boolean setVoltageDeltaForFrequency(int newDelta, String frequency);
 
-	// frequency stuffs
-	String getHighestFreqAvailable();
+    // frequency stuffs
+    boolean supportsVoltageControl();
 
-	String getMaxFreqSet();
+    String getHighestFreqAvailable();
 
-	String getLowestFreqAvailable();
+    String getMaxFreqSet();
 
-	String getMinFreqSet();
+    String getLowestFreqAvailable();
 
-	String getCurrentFrequency();
+    String getMinFreqSet();
 
-	String[] getAvailableFrequencies();
+    String getCurrentFrequency();
 
-	int getVoltageInterval();
+    String[] getAvailableFrequencies();
 
-	boolean setMaxFreq(String newFreq);
+    int getVoltageInterval();
 
-	boolean setMinFreq(String newFreq);
+    boolean setMaxFreq(String newFreq);
+
+    boolean setMinFreq(String newFreq);
 
 }
