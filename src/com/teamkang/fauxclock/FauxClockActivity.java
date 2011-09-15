@@ -237,8 +237,8 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 		// Log.e(TAG, formatMhz(972000 + ""));
 	}
 
-	public void onDestroy() {
-		super.onDestroy();
+	public void onPause() {
+		super.onPause();
 		cpu.getEditor().putBoolean("safe", true).apply();
 	}
 
