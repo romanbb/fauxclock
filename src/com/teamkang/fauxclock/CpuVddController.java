@@ -60,14 +60,14 @@ public class CpuVddController implements CpuInterface {
             setGoverner(settings.getString("cpu_gov", getCurrentGoverner()));
 
             setMinFreq(0, settings.getString("cpu0_min_freq",
-                    getLowestFreqAvailable()));
+                    getMinFreqSet(0)));
             setMaxFreq(0, settings.getString("cpu0_max_freq",
-                    getHighestFreqAvailable()));
+                    getMaxFreqSet(0)));
 
             setMinFreq(1, settings.getString("cpu1_min_freq",
-                    getLowestFreqAvailable()));
+                    getMaxFreqSet(1)));
             setMaxFreq(1, settings.getString("cpu1_max_freq",
-                    getHighestFreqAvailable()));
+                    getMaxFreqSet(1)));
 
             setGlobalVoltageDelta(Integer.parseInt(settings.getString(
                     "voltage_delta", "0")));
@@ -75,8 +75,6 @@ public class CpuVddController implements CpuInterface {
         }
 
     }
-    
-    
 
     public void readVddCpuTable() {
         String vdd_table = "";

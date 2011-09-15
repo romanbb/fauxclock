@@ -36,7 +36,7 @@ public class CpuAriesController implements CpuInterface {
 
     private int globalVoltageDelta = 0;
     private int currentVoltageDelta = 0;
-    private int voltageInterval = 25;
+    private int voltageInterval = 25000;
 
     public CpuAriesController(Context c) {
         mContext = c;
@@ -78,7 +78,22 @@ public class CpuAriesController implements CpuInterface {
 
     @Override
     public void loadValuesFromSettings() {
-        // TODO Auto-generated method stub
+        readFrequenciesFromSystem();
+        readGovernersFromSystem();
+
+        try {
+            setGoverner(settings.getString("cpu_gov", getCurrentGoverner()));
+
+            setMinFreq(settings.getString("cpu_min_freq",
+                    getMinFreqSet()));
+            setMaxFreq(settings.getString("cpu_max_freq",
+                    getMaxFreqSet()));
+
+            setGlobalVoltageDelta(Integer.parseInt(settings.getString(
+                    "voltage_delta", "0")));
+
+        } catch (ClassCastException e) {
+        }
 
     }
 
@@ -95,6 +110,7 @@ public class CpuAriesController implements CpuInterface {
     @Override
     public void readGovernersFromSystem() {
         String gString;
+        govs = new ArrayList<String>();
 
         if (ShellInterface.isSuAvailable()) {
             gString = ShellInterface.getProcessOutput("cat " + GOV_AVAIALBLE_PATH);
@@ -141,6 +157,17 @@ public class CpuAriesController implements CpuInterface {
 
     @Override
     public boolean setGlobalVoltageDelta(int newDelta) {
+        if (DBG) {
+            newDelta /= 1000;
+
+            Log.e(TAG, "new global voltage delta: " + newDelta);
+            // return true;
+        }
+
+        // supports only undervolting, can't overvolt
+        if (newDelta < 0)
+            newDelta *= -1;
+
         String write = "";
 
         for (String freq : freqs) {
@@ -151,8 +178,9 @@ public class CpuAriesController implements CpuInterface {
         write = write.trim();
 
         if (ShellInterface.isSuAvailable()) {
-            // ShellInterface.runCommand("echo \"" + write + "\" > " +
-            // UV_TABLE_PATH);
+            ShellInterface.runCommand("echo \"" + write + "\" > " +
+                    UV_TABLE_PATH);
+            editor.putString("voltage_delta", newDelta + "");
             return true;
         }
 
@@ -285,8 +313,8 @@ public class CpuAriesController implements CpuInterface {
 
     @Override
     public boolean supportsVoltageControl() {
-        if (true)
-            return false;
+        // if (true)
+        // return false;
 
         return new File(UV_TABLE_PATH).exists();
 

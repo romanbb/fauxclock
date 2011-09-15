@@ -63,8 +63,8 @@ public class FauxClockActivity extends Activity implements OnClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_control_list);
 
-        cpu = new CpuVddController(getApplicationContext());
-        // cpu = new CpuAriesController(getApplicationContext());
+        // cpu = new CpuVddController(getApplicationContext());
+        cpu = new CpuAriesController(getApplicationContext());
         cpu.loadValuesFromSettings();
 
         gpu = new GpuController(getApplicationContext());
