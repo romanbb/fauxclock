@@ -63,8 +63,8 @@ public class FauxClockActivity extends Activity implements OnClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_control_list);
 
-        // cpu = new CpuVddController(getApplicationContext());
-        cpu = new CpuAriesController(getApplicationContext());
+        cpu = new CpuVddController(getApplicationContext());
+        // cpu = new CpuAriesController(getApplicationContext());
         cpu.loadValuesFromSettings();
 
         gpu = new GpuController(getApplicationContext());
@@ -220,9 +220,9 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
         // using dual core settings here, come up with something more clever
         currentCpu0Clock.setText(formatMhz(cpu.getCurrentFrequency()));
-        // ((CpuVddController) cpu).pingCpu1();
-        // currentCpu1Clock.setText(formatMhz(((CpuVddController) cpu)
-        // .getCurrentFrequency(1)));
+        ((CpuVddController) cpu).pingCpu1();
+        currentCpu1Clock.setText(formatMhz(((CpuVddController) cpu)
+                .getCurrentFrequency(1)));
     }
 
     public void onClick(View v) {
