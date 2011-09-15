@@ -61,8 +61,15 @@
 						android:layout_below="@id/cpu0_freq_label"
 						android:id="@+id/refresh"
 						android:text="Refresh Clocks" />
+
+
 				</RelativeLayout>
 
+				<View
+					android:background="?android:attr/listDivider"
+					android:layout_width="fill_parent"
+					android:id="@+id/view1"
+					android:layout_height="1dp" />
 
 				<include
 					layout="@layout/cpu_control"
