@@ -70,7 +70,7 @@ public class GpuController {
 		if (ShellInterface.isSuAvailable()) {
 			ShellInterface.runCommand("echo \"" + newFrac + "\" > "
 					+ gpuIOFractionPath);
-			editor.putInt("gpu_io_fraction", newFrac);
+			editor.putString("gpu_io_fraction", newFrac + "");
 			gpuIOFraction = newFrac + "";
 		}
 	}

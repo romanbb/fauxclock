@@ -58,7 +58,7 @@
 					<Button
 						android:layout_height="wrap_content"
 						android:layout_width="fill_parent"
-						android:layout_below="@id/cpu1_freq_label"
+						android:layout_below="@id/cpu0_freq_label"
 						android:id="@+id/refresh"
 						android:text="Refresh Clocks" />
 				</RelativeLayout>

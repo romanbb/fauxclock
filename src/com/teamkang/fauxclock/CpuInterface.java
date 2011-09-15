@@ -22,13 +22,18 @@ public interface CpuInterface {
     String[] getAvailableGoverners();
 
     // voltage stuff
+    
+    boolean supportsVoltageControl();
+    
     boolean setGlobalVoltageDelta(int newDelta);
 
     boolean setVoltageDeltaForFrequency(int newDelta, String frequency);
 
+    int getGlobalVoltageDelta();
+    
+    int getVoltageInterval();
+    
     // frequency stuffs
-    boolean supportsVoltageControl();
-
     String getHighestFreqAvailable();
 
     String getMaxFreqSet();
@@ -40,8 +45,6 @@ public interface CpuInterface {
     String getCurrentFrequency();
 
     String[] getAvailableFrequencies();
-
-    int getVoltageInterval();
 
     boolean setMaxFreq(String newFreq);
 
