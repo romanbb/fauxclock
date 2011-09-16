@@ -245,7 +245,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
             findViewById(R.id.cpu1_freq_label).setVisibility(View.GONE);
         }
 
-        mHandler.removeCallbacks(mUpdateTimeTask);
+        mHandler.removeCallbacks(mUpdateClockTimeTask);
         refreshClocks();
 
         // hide extra labels for now
@@ -253,7 +253,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
         // Log.e(TAG, formatMhz(972000 + ""));
     }
 
-    private Runnable mUpdateTimeTask = new Runnable() {
+    private Runnable mUpdateClockTimeTask = new Runnable() {
         public void run() {
             // Log.e(TAG, "Running!");
             String[] cpus = cpu.getCurrentFrequencies();
@@ -261,11 +261,16 @@ public class FauxClockActivity extends Activity implements OnClickListener,
             // Log.e(TAG, "for!");
             for (int i = 0; i < cpus.length; i++) {
 
+                if (cpus[i] == null) {
+                    mHandler.removeCallbacks(mUpdateClockTimeTask);
+                    Log.e(TAG, "cpus[" + i + "] was null, stopping update task");
+                }
+
                 // Log.e(TAG, "for: " + i);
                 if (i == 0)
-                    currentCpu0Clock.setText(formatMhz(cpus[i]));
+                    currentCpu0Clock.setText(formatMhz(cpus[0]));
                 else if (i == 1)
-                    currentCpu1Clock.setText(formatMhz(cpus[i]));
+                    currentCpu1Clock.setText(formatMhz(cpus[1]));
 
             }
 
@@ -276,7 +281,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
     public void onPause() {
         super.onPause();
-        mHandler.removeCallbacks(mUpdateTimeTask);
+        mHandler.removeCallbacks(mUpdateClockTimeTask);
 
         cpu.getEditor().putBoolean("safe", true).apply();
     }
@@ -286,7 +291,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
         // using dual core settings here, come up with something more clever
         // currentCpu0Clock.setText(formatMhz(cpu.getCurrentFrequency()));
 
-        mHandler.postDelayed(mUpdateTimeTask, 100);
+        mHandler.postDelayed(mUpdateClockTimeTask, 100);
     }
 
     public void onClick(View v) {
@@ -489,6 +494,10 @@ public class FauxClockActivity extends Activity implements OnClickListener,
     }
 
     public static String formatMhz(String mhz) {
+        if (mhz == null) {
+            return "Unknown";
+        }
+
         int s;
 
         if (mhz.length() == 6) {

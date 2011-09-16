@@ -2,7 +2,7 @@
 <manifest
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.teamkang.fauxclock"
-	android:versionCode="5" android:versionName="0.5">
+	android:versionCode="9" android:versionName="0.55">
 	<uses-sdk android:minSdkVersion="10" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
 

@@ -51,11 +51,11 @@ public class CpuVddController implements CpuInterface {
         settings = mContext.getSharedPreferences("cpu_table", 0);
         editor = settings.edit();
 
+        readVddCpuTable();
+        readGovernersFromSystem();
     }
 
     public void loadValuesFromSettings() {
-        readVddCpuTable();
-        readGovernersFromSystem();
 
         try {
             setGoverner(settings.getString("cpu_gov", getCurrentGoverner()));
@@ -392,29 +392,30 @@ public class CpuVddController implements CpuInterface {
      */
     public String getCurrentFrequency(int whichCpu) {
 
-        String speed = "";
-        BufferedReader bf;
         try {
             switch (whichCpu) {
+                case 0:
+                    BufferedReader bf1 = new BufferedReader(new FileReader(CPU0_CUR_FREQ_PATH));
+                    String cpu0 = bf1.readLine();
+                    Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " + cpu0);
+                    return cpu0.trim();
                 case 1:
-                    bf = new BufferedReader(new FileReader(CPU0_CUR_FREQ_PATH));
-                    break;
+                    pingCpu1();
+                    BufferedReader bf2 = new BufferedReader(new FileReader(CPU1_CUR_FREQ_PATH));
+                    String cpu1 = bf2.readLine();
+                    Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " + cpu1);
+                    return cpu1.trim();
                 default:
-                    bf = new BufferedReader(new FileReader(CPU1_CUR_FREQ_PATH));
-                    break;
-            }
+                    return null;
 
-            speed = bf.readLine();
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        speed.trim();
-
-        return speed;
+        return null;
     }
 
     /**
