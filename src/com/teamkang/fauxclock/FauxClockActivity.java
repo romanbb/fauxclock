@@ -245,7 +245,6 @@ public class FauxClockActivity extends Activity implements OnClickListener,
             findViewById(R.id.cpu1_freq_label).setVisibility(View.GONE);
         }
 
-        mHandler.removeCallbacks(mUpdateClockTimeTask);
         refreshClocks();
 
         // hide extra labels for now
@@ -290,8 +289,16 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
         // using dual core settings here, come up with something more clever
         // currentCpu0Clock.setText(formatMhz(cpu.getCurrentFrequency()));
-
+        mHandler.removeCallbacks(mUpdateClockTimeTask);
         mHandler.postDelayed(mUpdateClockTimeTask, 100);
+    }
+
+    public void onResume() {
+        super.onResume();
+        if (cpu != null) {
+            refreshClocks();
+            cpu.getEditor().putBoolean("safe", false).apply();
+        }
     }
 
     public void onClick(View v) {

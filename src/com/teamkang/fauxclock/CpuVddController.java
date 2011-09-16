@@ -66,8 +66,9 @@ public class CpuVddController implements CpuInterface {
             setMinFreq(1, settings.getString("cpu1_min_freq", getMaxFreqSet(1)));
             setMaxFreq(1, settings.getString("cpu1_max_freq", getMaxFreqSet(1)));
 
-            setGlobalVoltageDelta(Integer.parseInt(settings.getString(
-                    "voltage_delta", "0")));
+            globalVoltageDelta = Integer.parseInt(settings.getString(
+                    "voltage_delta", "0"));
+            setGlobalVoltageDelta(globalVoltageDelta);
         } catch (ClassCastException e) {
         }
 
@@ -120,7 +121,7 @@ public class CpuVddController implements CpuInterface {
     public void pingCpu1() {
         if (ShellInterface.isSuAvailable()) {
             ShellInterface
-                    .runCommand("echo 1 > /sys/devices/system/cpu/cpu1/online");
+                    .runCommand("echo \"1\" > /sys/devices/system/cpu/cpu1/online");
         }
     }
 
@@ -400,8 +401,8 @@ public class CpuVddController implements CpuInterface {
                     Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " + cpu0);
                     return cpu0.trim();
                 case 1:
-                    pingCpu1();
                     BufferedReader bf2 = new BufferedReader(new FileReader(CPU1_CUR_FREQ_PATH));
+                    pingCpu1();
                     String cpu1 = bf2.readLine();
                     Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " + cpu1);
                     return cpu1.trim();
