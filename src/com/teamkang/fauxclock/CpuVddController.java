@@ -40,7 +40,6 @@ public class CpuVddController implements CpuInterface {
     private SharedPreferences.Editor editor;
 
     private int globalVoltageDelta = 0;
-    private int currentVoltageDelta = 0;
     private int voltageInterval = 12500;
 
     public static final String TAG = "CpuVddController";
@@ -420,12 +419,12 @@ public class CpuVddController implements CpuInterface {
     }
 
     /**
-     * @param delta in MILLIVOLTS! 25 mV, 50 mV, 75 mV
+     * @param delta in MILLIVOLTS! -25000 125000, etc
      */
     public boolean setGlobalVoltageDelta(int newDeltaFromZero) {
-        int diff = Math.abs(newDeltaFromZero - currentVoltageDelta);
+        int diff = Math.abs(newDeltaFromZero - globalVoltageDelta);
 
-        if (newDeltaFromZero - currentVoltageDelta < 0)
+        if (newDeltaFromZero - globalVoltageDelta < 0)
             diff *= -1;
 
         if (diff == 0) {
@@ -442,7 +441,7 @@ public class CpuVddController implements CpuInterface {
      */
     private void applyVoltageDelta(int newDelta) {
 
-        currentVoltageDelta += newDelta;
+        globalVoltageDelta += newDelta;
         // loop through freqs, and decrease local references
 
         // apply for later
@@ -467,7 +466,7 @@ public class CpuVddController implements CpuInterface {
                     .runCommand("echo \""
                             + s
                             + "\" > /sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels");
-            editor.putString("voltage_delta", currentVoltageDelta + "");
+            editor.putString("voltage_delta", globalVoltageDelta + "");
             editor.apply();
         }
     }

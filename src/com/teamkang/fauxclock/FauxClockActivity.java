@@ -219,7 +219,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
                     });
 
             gpuIOFracSeek.setMax(100);
-            gpuIOFracSeek.setProgress(33);
+            gpuIOFracSeek.setProgress(gpu.getGpuIOFraction());
             gpuIOFracSeek.setOnSeekBarChangeListener(this);
 
         } else {
