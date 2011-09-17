@@ -185,7 +185,6 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
         if (PhoneManager.supportsGpu()) {
             gpu = new GpuController(getApplicationContext());
-            gpu.readGpuSettings();
 
             gpuLayout.setVisibility(View.GONE);
 

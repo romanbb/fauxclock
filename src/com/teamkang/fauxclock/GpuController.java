@@ -9,9 +9,7 @@ import android.content.SharedPreferences;
 public class GpuController {
 
     // gpu stuff
-    private String gpuGoverner = "ondemand";
     private String gpuGovernerPath = "/sys/devices/platform/kgsl/msm_kgsl/kgsl-3d0/scaling_governor";
-    private String gpuIOFraction = "33";
     private String gpuIOFractionPath = "/sys/devices/platform/kgsl/msm_kgsl/kgsl-3d0/io_fraction";
 
     String[] govs = {
@@ -31,23 +29,23 @@ public class GpuController {
     }
 
     public void loadValuesFromSettings() {
-        readGpuSettings();
+        // readGpuSettings();
 
-        setGpuGoverner(settings.getString("gpu_gov", gpuGoverner));
+        setGpuGoverner(settings.getString("gpu_gov", getCurrentActiveGov()));
         setGpuIOFraction(Integer.parseInt(settings.getString("gpu_io_fraction",
-                gpuIOFraction)));
+                "33")));
     }
 
-    public void readGpuSettings() {
-        // read gpu gov
-        if (ShellInterface.isSuAvailable()) {
-            gpuGoverner = ShellInterface.getProcessOutput("cat "
-                    + gpuGovernerPath);
-            gpuIOFraction = ShellInterface.getProcessOutput("cat "
-                    + gpuIOFractionPath);
-
-        }
-    }
+    // public void readGpuSettings() {
+    // // read gpu gov
+    // if (ShellInterface.isSuAvailable()) {
+    // gpuGoverner = ShellInterface.getProcessOutput("cat "
+    // + gpuGovernerPath);
+    // gpuIOFraction = ShellInterface.getProcessOutput("cat "
+    // + gpuIOFractionPath);
+    //
+    // }
+    // }
 
     public String getCurrentActiveGov() {
         String g = "";
@@ -64,13 +62,12 @@ public class GpuController {
             ShellInterface.runCommand("echo \"" + newGov + "\" > "
                     + gpuGovernerPath);
             editor.putString("gpu_gov", newGov);
-            gpuGoverner = newGov;
         }
 
     }
 
     public int getGpuIOFraction() {
-        return Integer.parseInt(gpuIOFraction);
+        return Integer.parseInt(settings.getString("gpu_io_fraction", "33"));
     }
 
     public void setGpuIOFraction(int newFrac) {
@@ -78,7 +75,6 @@ public class GpuController {
             ShellInterface.runCommand("echo \"" + newFrac + "\" > "
                     + gpuIOFractionPath);
             editor.putString("gpu_io_fraction", newFrac + "");
-            gpuIOFraction = newFrac + "";
         }
     }
 
