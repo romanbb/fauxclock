@@ -81,6 +81,8 @@ public class Main extends Activity {
         public Object instantiateItem(View collection, int position) {
             View v = null;
 
+            // TODO fix this hacky bs, use a linked list maybe
+
             switch (position) {
                 case 0:
 
