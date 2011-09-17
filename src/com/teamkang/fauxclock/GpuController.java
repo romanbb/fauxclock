@@ -12,7 +12,7 @@ public class GpuController {
     private String gpuGovernerPath = "/sys/devices/platform/kgsl/msm_kgsl/kgsl-3d0/scaling_governor";
     private String gpuIOFractionPath = "/sys/devices/platform/kgsl/msm_kgsl/kgsl-3d0/io_fraction";
 
-    String[] govs = {
+    public String[] govs = {
             "ondemand", "performance"
     };
 

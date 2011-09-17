@@ -1,5 +1,5 @@
 
-package com.teamkang.fauxclock;
+package com.teamkang.fauxclock.cpu;
 
 import ru.org.amip.MarketAccess.utils.ShellInterface;
 
@@ -78,6 +78,10 @@ public class CpuAriesController implements CpuInterface {
              * Log.e(TAG, "adding freq: " + sortMe[i]); }
              */
         }
+    }
+
+    public int getNumberOfCores() {
+        return 1;
     }
 
     public void loadValuesFromSettings() {

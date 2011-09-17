@@ -1,5 +1,5 @@
 
-package com.teamkang.fauxclock;
+package com.teamkang.fauxclock.cpu;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -71,6 +71,10 @@ public class CpuVddController implements CpuInterface {
         } catch (ClassCastException e) {
         }
 
+    }
+
+    public int getNumberOfCores() {
+        return 2;
     }
 
     public void readVddCpuTable() {

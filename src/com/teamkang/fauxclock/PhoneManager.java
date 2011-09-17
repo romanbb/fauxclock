@@ -1,10 +1,14 @@
 
 package com.teamkang.fauxclock;
 
-import java.io.File;
+import com.teamkang.fauxclock.cpu.CpuAriesController;
+import com.teamkang.fauxclock.cpu.CpuInterface;
+import com.teamkang.fauxclock.cpu.CpuVddController;
 
 import android.content.Context;
 import android.os.Build;
+
+import java.io.File;
 
 public class PhoneManager {
 
@@ -24,6 +28,10 @@ public class PhoneManager {
             return new CpuVddController(c);
     }
 
+    public static GpuController getGpu(Context c) {
+        return supportsGpu() ? new GpuController(c) : null;
+    }
+
     public CpuInterface getCpu() {
         String board = Build.BOARD;
 
@@ -33,6 +41,10 @@ public class PhoneManager {
             return new CpuVddController(mContext);
 
         // return null;
+    }
+
+    public GpuController getGpu() {
+        return supportsGpu() ? new GpuController(mContext) : null;
     }
 
     public static boolean isDualCore() {

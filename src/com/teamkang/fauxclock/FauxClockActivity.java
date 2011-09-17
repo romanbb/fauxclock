@@ -1,6 +1,8 @@
 
 package com.teamkang.fauxclock;
 
+import com.teamkang.fauxclock.cpu.CpuInterface;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -86,9 +88,9 @@ public class FauxClockActivity extends Activity implements OnClickListener,
         cpuLayout = (RelativeLayout) findViewById(R.id.cpuControl);
         cpuLayout.setVisibility(View.GONE);
 
-        cpuPref = (ExpandingPreference) findViewById(R.id.cpu_control_pref);
-        cpuPref.setTitle("CPU Control");
-        cpuPref.setOnClickListener(this);
+        // cpuPref = (ExpandingPreference) findViewById(R.id.cpu_control_pref);
+        // cpuPref.setTitle("CPU Control");
+        // cpuPref.setOnClickListener(this);
 
         cpuMaxSeek = (SeekBar) findViewById(R.id.cpu_max_seek);
         cpuMaxSeek.setOnSeekBarChangeListener(this);
@@ -115,11 +117,11 @@ public class FauxClockActivity extends Activity implements OnClickListener,
         //
         // }
         // });
-        findViewById(R.id.refresh).setVisibility(View.GONE);
 
         voltageSeek = (SeekBar) findViewById(R.id.global_voltage_seekbar);
         voltageDelta = (TextView) findViewById(R.id.voltage_delta);
-        voltagePref = (ExpandingPreference) findViewById(R.id.voltage_control_pref);
+        // voltagePref = (ExpandingPreference)
+        // findViewById(R.id.voltage_control_pref);
         voltageLayout = (RelativeLayout) findViewById(R.id.voltage_control);
 
         if (cpu.supportsVoltageControl()) {
@@ -135,9 +137,10 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
             voltageDelta.setText(formatVolts(cpu.getGlobalVoltageDelta()));
 
-            voltagePref = (ExpandingPreference) findViewById(R.id.voltage_control_pref);
-            voltagePref.setTitle("Voltage Prefs");
-            voltagePref.setOnClickListener(this);
+            // voltagePref = (ExpandingPreference)
+            // findViewById(R.id.voltage_control_pref);
+            // voltagePref.setTitle("Voltage Prefs");
+            // voltagePref.setOnClickListener(this);
 
             voltageLayout = (RelativeLayout) findViewById(R.id.voltage_control);
             voltageLayout.setVisibility(View.GONE);
@@ -146,7 +149,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
             voltageSeek.setVisibility(View.GONE);
             voltageDelta.setVisibility(View.GONE);
-            voltagePref.setVisibility(View.GONE);
+            // voltagePref.setVisibility(View.GONE);
             voltageLayout.setVisibility(View.GONE);
         }
 
@@ -178,7 +181,7 @@ public class FauxClockActivity extends Activity implements OnClickListener,
 
         /* gpu */
         gpuLayout = (RelativeLayout) findViewById(R.id.gpuControl);
-        gpuPref = (ExpandingPreference) findViewById(R.id.gpu_control_pref);
+        // gpuPref = (ExpandingPreference) findViewById(R.id.gpu_control_pref);
         gpuGovSpinner = (Spinner) findViewById(R.id.gpu_gov_spinner);
         gpuIOFracSeek = (SeekBar) findViewById(R.id.seekbar_gpu_io_frac);
         gpuIOFracValue = (TextView) findViewById(R.id.gpu_io_frac_value);
@@ -311,43 +314,43 @@ public class FauxClockActivity extends Activity implements OnClickListener,
                 cpu.getEditor().putBoolean("load_on_startup", checked).apply();
                 Log.e(TAG, "set load on startup to be: " + checked);
                 break;
-            case R.id.cpu_control_pref:
-                visible = cpuLayout.getVisibility() == View.VISIBLE;
-
-                if (visible) {
-                    cpuPref.setExpanded(false);
-                    cpuLayout.setVisibility(View.GONE);
-                } else {
-
-                    cpuPref.setExpanded(true);
-                    cpuLayout.setVisibility(View.VISIBLE);
-                }
-                break;
-            case R.id.gpu_control_pref:
-
-                visible = gpuLayout.getVisibility() == View.VISIBLE;
-
-                if (visible) {
-                    gpuPref.setExpanded(false);
-                    gpuLayout.setVisibility(View.GONE);
-                } else {
-
-                    gpuPref.setExpanded(true);
-                    gpuLayout.setVisibility(View.VISIBLE);
-                }
-                break;
-            case R.id.voltage_control_pref:
-                visible = voltageLayout.getVisibility() == View.VISIBLE;
-
-                if (visible) {
-                    voltagePref.setExpanded(false);
-                    voltageLayout.setVisibility(View.GONE);
-                } else {
-
-                    voltagePref.setExpanded(true);
-                    voltageLayout.setVisibility(View.VISIBLE);
-                }
-                break;
+        // case R.id.cpu_control_pref:
+        // visible = cpuLayout.getVisibility() == View.VISIBLE;
+        //
+        // if (visible) {
+        // cpuPref.setExpanded(false);
+        // cpuLayout.setVisibility(View.GONE);
+        // } else {
+        //
+        // cpuPref.setExpanded(true);
+        // cpuLayout.setVisibility(View.VISIBLE);
+        // }
+        // break;
+        // case R.id.gpu_control_pref:
+        //
+        // visible = gpuLayout.getVisibility() == View.VISIBLE;
+        //
+        // if (visible) {
+        // gpuPref.setExpanded(false);
+        // gpuLayout.setVisibility(View.GONE);
+        // } else {
+        //
+        // gpuPref.setExpanded(true);
+        // gpuLayout.setVisibility(View.VISIBLE);
+        // }
+        // break;
+        // case R.id.voltage_control_pref:
+        // visible = voltageLayout.getVisibility() == View.VISIBLE;
+        //
+        // if (visible) {
+        // voltagePref.setExpanded(false);
+        // voltageLayout.setVisibility(View.GONE);
+        // } else {
+        //
+        // voltagePref.setExpanded(true);
+        // voltageLayout.setVisibility(View.VISIBLE);
+        // }
+        // break;
         }
     }
 

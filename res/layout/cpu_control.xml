@@ -4,27 +4,74 @@
 	android:layout_width="match_parent"
 	android:id="@+id/cpuControl"
 	android:orientation="vertical"
-	android:layout_height="wrap_content">
+	android:layout_height="match_parent">
 
-	<com.teamkang.fauxclock.ExpandingPreference
-		android:id="@+id/cpu_control_pref"
+	<include
+		layout="@layout/tab_header"
+		android:id="@+id/include1"
+		android:layout_weight="1">
+	</include>
+
+	<LinearLayout
+		android:id="@+id/info"
+		android:gravity="center"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="10dip" />
+		android:layout_weight="0"
+		android:padding="10dip">
+		<!-- <TextView android:text="cpu1 freq" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" 
+			android:id="@+id/cpu1_freq_label" android:layout_width="wrap_content" android:layout_alignRight="@id/cpu1_freq" 
+			android:layout_below="@id/cpu1_freq" /> <TextView android:text="cpu0 freq" android:layout_height="wrap_content" 
+			android:textAppearance="?android:attr/textAppearanceSmall" android:id="@+id/cpu0_freq_label" android:layout_width="wrap_content" 
+			android:layout_below="@+id/cpu0_freq" /> -->
+		<TextView
+			android:id="@+id/cpu0_freq"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:textSize="20dip"
+			android:text="cpu0"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			a="20dip"
+			android:layout_marginLeft="10dip"
+			android:layout_marginRight="10dip"></TextView>
+		<View
+			android:layout_width="2dip"
+			android:id="@+id/cpu_divider"
+			android:background="#FF777777"
+			android:layout_height="match_parent" />
+		<TextView
+			android:id="@+id/cpu1_freq"
+			android:layout_width="wrap_content"
+			android:text="cpu1"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:layout_marginLeft="10dip"
+			android:layout_marginRight="10dip"
+			android:textSize="20dip"></TextView>
+
+
+	</LinearLayout>
+
+	<View
+		android:background="?android:attr/listDivider"
+		android:layout_width="fill_parent"
+		android:id="@+id/divider"
+		android:layout_height="1dp"
+		android:layout_weight="0" />
 
 	<RelativeLayout
 		android:layout_width="match_parent"
 		android:id="@+id/cpuControl"
 		android:padding="15dip"
 		android:orientation="vertical"
-		android:layout_height="wrap_content"
-		android:background="#FF333333">
+		android:layout_weight="1"
+		android:layout_height="wrap_content">
 		<TextView
 			android:id="@+id/cpu_max_label"
 			android:layout_width="wrap_content"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:layout_height="wrap_content"
-			android:layout_below="@id/cpu_control_pref"
+			android:layout_below="@id/divider"
 			android:text="Max clock" />
 		<TextView
 			android:id="@+id/cpu_max_clock"
@@ -32,7 +79,7 @@
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/cpu_control_pref"
+			android:layout_below="@id/divider"
 			android:text="0mhz" />
 		<SeekBar
 			android:layout_height="wrap_content"
@@ -73,5 +120,15 @@
 			android:layout_width="match_parent" />
 
 	</RelativeLayout>
+	<LinearLayout
+	android:layout_width="fill_parent"
+	android:orientation="vertical"
+	android:layout_height="50dip">
+	<CheckBox
+		android:text="Set on boot"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/set_on_boot"></CheckBox>
+</LinearLayout>
 
 </LinearLayout>

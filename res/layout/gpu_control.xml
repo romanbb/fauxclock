@@ -5,14 +5,12 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
+	<include
+		layout="@layout/tab_header"
+		android:id="@+id/include1">
+	</include>
 
 	<!-- GPU control here -->
-	<com.teamkang.fauxclock.ExpandingPreference
-		android:id="@+id/gpu_control_pref"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:padding="10dip" />
-
 	<RelativeLayout
 		android:layout_width="match_parent"
 		android:id="@+id/gpuControl"
@@ -26,7 +24,6 @@
 			android:layout_width="wrap_content"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:layout_height="wrap_content"
-			android:layout_below="@id/gpu_control_pref"
 			android:text="Governer" />
 		<Spinner
 			android:layout_height="wrap_content"

@@ -4,13 +4,11 @@
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
-	<com.teamkang.fauxclock.ExpandingPreference
-		android:id="@+id/voltage_control_pref"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:padding="10dip">
 
-	</com.teamkang.fauxclock.ExpandingPreference>
+	<include
+		layout="@layout/tab_header"
+		android:id="@+id/include1">
+	</include>
 
 	<RelativeLayout
 		android:layout_width="match_parent"
@@ -32,7 +30,6 @@
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/voltage_control_pref"
 			android:text="0 mv" />
 
 		<SeekBar

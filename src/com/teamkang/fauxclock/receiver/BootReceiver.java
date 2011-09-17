@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.teamkang.fauxclock.CpuInterface;
 import com.teamkang.fauxclock.GpuController;
 import com.teamkang.fauxclock.PhoneManager;
+import com.teamkang.fauxclock.cpu.CpuInterface;
 
 public class BootReceiver extends BroadcastReceiver {
 

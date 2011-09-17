@@ -1,9 +1,11 @@
 
-package com.teamkang.fauxclock;
+package com.teamkang.fauxclock.cpu;
 
 import android.content.SharedPreferences;
 
 public interface CpuInterface {
+
+    int getNumberOfCores();
 
     // Settings
     void loadValuesFromSettings();
