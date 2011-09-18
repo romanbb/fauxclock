@@ -399,25 +399,32 @@ public class CpuVddController implements CpuInterface {
         try {
             switch (whichCpu) {
                 case 0:
+                    // if (ShellInterface.isSuAvailable()) {
+                    ShellInterface.runCommand("chmod 644 " + CPU0_CUR_FREQ_PATH);
+                    // }
                     BufferedReader bf1 = new BufferedReader(new FileReader(CPU0_CUR_FREQ_PATH));
                     String cpu0 = bf1.readLine();
-                    Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " + cpu0);
+                    // Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " +
+                    // cpu0);
                     return cpu0.trim();
                 case 1:
-                    BufferedReader bf2 = new BufferedReader(new FileReader(CPU1_CUR_FREQ_PATH));
                     pingCpu1();
+                    // if (ShellInterface.isSuAvailable()) {
+                    ShellInterface.runCommand("chmod 644 " + CPU1_CUR_FREQ_PATH);
+                    // }
+                    BufferedReader bf2 = new BufferedReader(new FileReader(CPU1_CUR_FREQ_PATH));
                     String cpu1 = bf2.readLine();
-                    Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " + cpu1);
+                    // Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " +
+                    // cpu1);
                     return cpu1.trim();
                 default:
                     return null;
 
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return null;
     }

@@ -183,9 +183,10 @@ public class CpuFactory implements OnClickListener,
             // Log.e(TAG, "for!");
             for (int i = 0; i < cpus.length; i++) {
 
-                if (cpus[i] == null) {
+                if (cpus[0] == null) {
                     mHandler.removeCallbacks(mUpdateClockTimeTask);
                     Log.e(TAG, "cpus[" + i + "] was null, stopping update task");
+                    return;
                 }
 
                 // Log.e(TAG, "for: " + i);
@@ -238,7 +239,7 @@ public class CpuFactory implements OnClickListener,
 
     public static String formatMhz(String mhz) {
         if (mhz == null) {
-            return "Unknown";
+            return "offline";
         }
 
         int s;

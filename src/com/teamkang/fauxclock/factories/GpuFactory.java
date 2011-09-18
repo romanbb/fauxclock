@@ -86,6 +86,8 @@ public class GpuFactory implements SeekBar.OnSeekBarChangeListener {
             gpuIOFracSeek.setProgress(gpu.getGpuIOFraction());
             gpuIOFracSeek.setOnSeekBarChangeListener(this);
 
+            gpuIOFracValue.setText(gpu.getGpuIOFraction() + "");
+
         } else {
             gpuLayout.setVisibility(View.GONE);
             gpuGovSpinner.setVisibility(View.GONE);

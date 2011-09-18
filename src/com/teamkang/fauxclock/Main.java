@@ -46,6 +46,31 @@ public class Main extends Activity {
         awesomePager.setAdapter(awesomeAdapter);
     }
 
+    public void onPause() {
+        super.onPause();
+
+        if (cpu != null) {
+            cpu.getEditor().putBoolean("safe", true).apply();
+        }
+
+        if (cpuFactory != null) {
+            cpuFactory.stopClockRefresh();
+        }
+    }
+
+    public void onResume() {
+        super.onResume();
+
+        if (cpu != null) {
+            cpu.getEditor().putBoolean("safe", false).apply();
+        }
+
+        if (cpuFactory != null) {
+            cpuFactory.refreshClocks();
+        }
+
+    }
+
     private class AwesomePagerAdapter extends PagerAdapter {
 
         @Override
