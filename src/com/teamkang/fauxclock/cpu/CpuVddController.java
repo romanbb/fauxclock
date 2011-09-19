@@ -13,7 +13,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
+
 package com.teamkang.fauxclock.cpu;
+
+import ru.org.amip.MarketAccess.utils.ShellInterface;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -21,12 +29,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-
-import ru.org.amip.MarketAccess.utils.ShellInterface;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.util.Log;
 
 public class CpuVddController implements CpuInterface {
 
@@ -277,6 +279,17 @@ public class CpuVddController implements CpuInterface {
             Log.e(TAG, "setMaxFreq failed, tried to set : " + newFreq
                     + " on cpu: " + whichCpu);
             return false;
+        }
+
+        int f = Integer.parseInt(newFreq);
+        if (f < Integer.parseInt(getHighestFreqAvailable())) {
+            if (ShellInterface.isSuAvailable()) {
+                ShellInterface.runCommand("stop thermald");
+            }
+        } else {
+            if (ShellInterface.isSuAvailable()) {
+                ShellInterface.runCommand("start thermald");
+            }
         }
 
         switch (whichCpu) {
