@@ -19,6 +19,7 @@ package com.teamkang.fauxclock.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 
 import com.teamkang.fauxclock.GpuController;
@@ -34,12 +35,24 @@ public class BootReceiver extends BroadcastReceiver {
 
         if (cpu.getSettings().getBoolean("load_on_startup", false)
                 && cpu.getSettings().getBoolean("safe", false)) {
+
+            // load cpu settings
             cpu.loadValuesFromSettings();
 
+            // logic for screen reciever stuff!
+            // Intent i = new Intent(context, ScreenStateService.class);
+            // context.startService(i);
+            if (cpu.getSettings().getBoolean("use_screen_off_profile", false)) {
+                IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+                filter.addAction(Intent.ACTION_SCREEN_OFF);
+                BroadcastReceiver mReceiver = new ScreenReceiver();
+                context.registerReceiver(mReceiver, filter);
+            }
+
+            // load gpu settings
             if (PhoneManager.supportsGpu()) {
                 GpuController gpu = new GpuController(context);
                 gpu.loadValuesFromSettings();
-
             }
         } else if (!cpu.getSettings().getBoolean("safe", false)) {
             cpu.getEditor().clear().commit();

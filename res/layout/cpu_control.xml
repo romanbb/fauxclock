@@ -19,11 +19,14 @@
 		android:layout_height="wrap_content"
 		android:layout_weight="0"
 		android:padding="10dip">
-		<!-- <TextView android:text="cpu1 freq" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" 
-			android:id="@+id/cpu1_freq_label" android:layout_width="wrap_content" android:layout_alignRight="@id/cpu1_freq" 
-			android:layout_below="@id/cpu1_freq" /> <TextView android:text="cpu0 freq" android:layout_height="wrap_content" 
-			android:textAppearance="?android:attr/textAppearanceSmall" android:id="@+id/cpu0_freq_label" android:layout_width="wrap_content" 
-			android:layout_below="@+id/cpu0_freq" /> -->
+		<!-- <TextView android:text="cpu1 freq" android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmall" android:id="@+id/cpu1_freq_label"
+			android:layout_width="wrap_content" android:layout_alignRight="@id/cpu1_freq"
+			android:layout_below="@id/cpu1_freq" /> <TextView android:text="cpu0 freq"
+			android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall"
+			android:id="@+id/cpu0_freq_label" android:layout_width="wrap_content"
+			android:layout_below="@+id/cpu0_freq"
+			/> -->
 		<TextView
 			android:id="@+id/cpu0_freq"
 			android:layout_height="wrap_content"
@@ -52,83 +55,171 @@
 
 	</LinearLayout>
 
-	<View
-		android:background="?android:attr/listDivider"
-		android:layout_width="fill_parent"
-		android:id="@+id/divider"
-		android:layout_height="1dp"
-		android:layout_weight="0" />
-
-	<RelativeLayout
-		android:layout_width="match_parent"
-		android:id="@+id/cpuControl"
-		android:padding="15dip"
-		android:orientation="vertical"
-		android:layout_weight="1"
-		android:layout_height="wrap_content">
-		<TextView
-			android:id="@+id/cpu_max_label"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:layout_below="@id/divider"
-			android:text="Max clock" />
-		<TextView
-			android:id="@+id/cpu_max_clock"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@id/divider"
-			android:text="0mhz" />
-		<SeekBar
-			android:layout_height="wrap_content"
-			android:id="@+id/cpu_max_seek"
-			android:layout_below="@id/cpu_max_label"
-			android:layout_width="match_parent" />
-		<TextView
-			android:id="@+id/cpu_min_label"
-			android:layout_width="wrap_content"
-			android:layout_below="@id/cpu_max_seek"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:text="Min clock" />
-		<TextView
-			android:id="@+id/cpu_min_clock"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@id/cpu_max_seek"
-			android:text="0mhz" />
-		<SeekBar
-			android:layout_height="wrap_content"
-			android:id="@+id/cpu_min_seek"
-			android:layout_below="@id/cpu_min_label"
-			android:layout_width="match_parent" />
-		<TextView
-			android:id="@+id/cpu_gov_label"
-			android:layout_below="@id/cpu_min_seek"
-			android:layout_width="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:layout_height="wrap_content"
-			android:text="Governer" />
-		<Spinner
-			android:layout_height="wrap_content"
-			android:id="@+id/cpu_gov_spinner"
-			android:layout_below="@id/cpu_gov_label"
-			android:layout_width="match_parent" />
-
-	</RelativeLayout>
-	<LinearLayout
-	android:layout_width="fill_parent"
-	android:orientation="vertical"
-	android:layout_height="50dip">
-	<CheckBox
-		android:text="Set on boot"
+	<ScrollView
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:id="@+id/set_on_boot"></CheckBox>
-</LinearLayout>
+		android:layout_weight="0.11">
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:orientation="vertical">
+			<View
+				android:background="?android:attr/listDivider"
+				android:layout_width="fill_parent"
+				android:id="@+id/divider"
+				android:layout_height="1dip"
+				android:layout_weight="0" />
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:id="@+id/cpuControl"
+				android:padding="15dip"
+				android:orientation="vertical"
+				android:layout_weight="1"
+				android:layout_height="wrap_content">
+				<TextView
+					android:id="@+id/cpu_max_label"
+					android:layout_width="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/divider"
+					android:text="Max clock" />
+				<TextView
+					android:id="@+id/cpu_max_clock"
+					android:layout_width="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:layout_below="@id/divider"
+					android:text="0mhz" />
+				<SeekBar
+					android:layout_height="wrap_content"
+					android:id="@+id/cpu_max_seek"
+					android:layout_below="@id/cpu_max_label"
+					android:layout_width="match_parent" />
+				<TextView
+					android:id="@+id/cpu_min_label"
+					android:layout_width="wrap_content"
+					android:layout_below="@id/cpu_max_seek"
+					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:layout_height="wrap_content"
+					android:text="Min clock" />
+				<TextView
+					android:id="@+id/cpu_min_clock"
+					android:layout_width="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:layout_below="@id/cpu_max_seek"
+					android:text="0mhz" />
+				<SeekBar
+					android:layout_height="wrap_content"
+					android:id="@+id/cpu_min_seek"
+					android:layout_below="@id/cpu_min_label"
+					android:layout_width="match_parent" />
+				<TextView
+					android:id="@+id/cpu_gov_label"
+					android:layout_below="@id/cpu_min_seek"
+					android:layout_width="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"
+					android:layout_height="wrap_content"
+					android:text="Governer" />
+				<Spinner
+					android:layout_height="wrap_content"
+					android:id="@+id/cpu_gov_spinner"
+					android:layout_below="@id/cpu_gov_label"
+					android:layout_width="match_parent" />
+
+			</RelativeLayout>
+
+
+			<!-- screen off settings -->
+
+			<View
+				android:background="?android:attr/listDivider"
+				android:layout_width="fill_parent"
+				android:id="@+id/divider_screen_off"
+				android:layout_height="2dip"
+				android:layout_weight="0" />
+
+			<LinearLayout
+				android:layout_height="wrap_content"
+				android:id="@+id/linearLayout1"
+				android:layout_width="match_parent"
+				android:orientation="vertical"
+				android:layout_marginTop="20dip">
+				<CheckBox
+					android:text="Use different clocks when the screen is off"
+					android:id="@+id/screen_off_profile"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"></CheckBox>
+			</LinearLayout>
+
+			<View
+				android:background="?android:attr/listDivider"
+				android:layout_width="fill_parent"
+				android:id="@+id/divider_screen_off"
+				android:layout_height="1dip"
+				android:layout_weight="0" />
+			<RelativeLayout
+				android:layout_height="wrap_content"
+				android:padding="15dip"
+				android:layout_width="match_parent"
+				android:id="@+id/cpuControl_screen_off"
+				android:layout_weight="1">
+				<TextView
+					android:layout_height="wrap_content"
+					android:text="Max clock"
+					android:id="@+id/cpu_max_label_screen_off"
+					android:layout_below="@id/divider_screen_off"
+					android:layout_width="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"></TextView>
+				<TextView
+					android:layout_alignParentRight="true"
+					android:layout_height="wrap_content"
+					android:text="0mhz"
+					android:id="@+id/cpu_max_clock_screen_off"
+					android:layout_below="@id/divider_screen_off"
+					android:layout_width="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"></TextView>
+				<SeekBar
+					android:layout_height="wrap_content"
+					android:id="@+id/cpu_max_seek_screen_off"
+					android:layout_below="@id/cpu_max_label_screen_off"
+					android:layout_width="match_parent"></SeekBar>
+				<TextView
+					android:layout_height="wrap_content"
+					android:text="Min clock"
+					android:id="@+id/cpu_min_label_screen_off"
+					android:layout_below="@id/cpu_max_seek_screen_off"
+					android:layout_width="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"></TextView>
+				<TextView
+					android:layout_alignParentRight="true"
+					android:layout_height="wrap_content"
+					android:text="0mhz"
+					android:id="@+id/cpu_min_clock_screen_off"
+					android:layout_below="@id/cpu_max_seek_screen_off"
+					android:layout_width="wrap_content"
+					android:textAppearance="?android:attr/textAppearanceSmall"></TextView>
+				<SeekBar
+					android:layout_height="wrap_content"
+					android:id="@+id/cpu_min_seek_screen_off"
+					android:layout_below="@id/cpu_min_label_screen_off"
+					android:layout_width="match_parent"></SeekBar>
+			</RelativeLayout>
+		</LinearLayout>
+	</ScrollView>
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:orientation="vertical"
+		android:layout_gravity="bottom">
+		<CheckBox
+			android:id="@+id/set_on_boot"
+			android:text="Set on boot"
+			android:layout_height="match_parent"
+			android:layout_width="fill_parent"></CheckBox>
+	</LinearLayout>
 
 </LinearLayout>

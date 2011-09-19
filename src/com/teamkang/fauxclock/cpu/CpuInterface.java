@@ -19,7 +19,7 @@ package com.teamkang.fauxclock.cpu;
 import android.content.SharedPreferences;
 
 public interface CpuInterface {
-
+    
     int getNumberOfCores();
 
     // Settings
@@ -67,6 +67,22 @@ public interface CpuInterface {
 
     boolean setMaxFreq(String newFreq);
 
+    /**
+     * @param newFreq
+     * @param permanent determine whether to commit this setting to the local
+     *            preference table
+     * @return
+     */
+    boolean setMaxFreq(String newFreq, boolean permanent);
+
     boolean setMinFreq(String newFreq);
+
+    /**
+     * @param newFreq
+     * @param permanent determine whether to commit this setting to the local
+     *            preference table
+     * @return
+     */
+    boolean setMinFreq(String newFreq, boolean permanent);
 
 }

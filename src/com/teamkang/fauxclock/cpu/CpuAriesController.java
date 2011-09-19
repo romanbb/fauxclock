@@ -54,6 +54,8 @@ public class CpuAriesController implements CpuInterface {
 
     protected Context mContext;
 
+    public CpuInterface instance;
+
     // private int globalVoltageDelta = 0;
     private int voltageInterval = 25000;
 
@@ -65,6 +67,8 @@ public class CpuAriesController implements CpuInterface {
 
         settings = mContext.getSharedPreferences("cpu", 0);
         editor = settings.edit();
+
+        instance = this;
     }
 
     private void readFrequenciesFromSystem() {
@@ -313,6 +317,10 @@ public class CpuAriesController implements CpuInterface {
     }
 
     public boolean setMaxFreq(String newFreq) {
+        return setMaxFreq(newFreq, true);
+    }
+
+    public boolean setMaxFreq(String newFreq, boolean permanent) {
         if (DBG) {
             Log.e(TAG, "setMaxFreq(" + newFreq + ")");
         }
@@ -320,20 +328,25 @@ public class CpuAriesController implements CpuInterface {
         if (ShellInterface.isSuAvailable()) {
             ShellInterface.runCommand("echo \"" + newFreq + "\" > "
                     + FREQ_MAX_PATH);
-            editor.putString("cpu_max_freq", newFreq).apply();
+            if (permanent)
+                editor.putString("cpu_max_freq", newFreq).apply();
             return true;
         }
         return false;
-
     }
 
     public boolean setMinFreq(String newFreq) {
+        return setMinFreq(newFreq, true);
+    }
+
+    public boolean setMinFreq(String newFreq, boolean permanent) {
         Log.e(TAG, "setMinFreq(" + newFreq + ")");
 
         if (ShellInterface.isSuAvailable()) {
             ShellInterface.runCommand("echo \"" + newFreq + "\" > "
                     + FREQ_MIN_PATH);
-            editor.putString("cpu_min_freq", newFreq).apply();
+            if (permanent)
+                editor.putString("cpu_min_freq", newFreq).apply();
             return true;
         }
         return false;

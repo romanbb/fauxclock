@@ -75,11 +75,11 @@ public class CpuVddController implements CpuInterface {
         try {
             setGoverner(settings.getString("cpu_gov", getCurrentGoverner()));
 
-            setMinFreq(0, settings.getString("cpu0_min_freq", getMinFreqSet(0)));
-            setMaxFreq(0, settings.getString("cpu0_max_freq", getMaxFreqSet(0)));
+            setMinFreq(0, settings.getString("cpu0_min_freq", getMinFreqSet(0)), true);
+            setMaxFreq(0, settings.getString("cpu0_max_freq", getMaxFreqSet(0)), true);
 
-            setMinFreq(1, settings.getString("cpu1_min_freq", getMaxFreqSet(1)));
-            setMaxFreq(1, settings.getString("cpu1_max_freq", getMaxFreqSet(1)));
+            setMinFreq(1, settings.getString("cpu1_min_freq", getMaxFreqSet(1)), true);
+            setMaxFreq(1, settings.getString("cpu1_max_freq", getMaxFreqSet(1)), true);
 
             globalVoltageDelta = Integer.parseInt(settings.getString(
                     "voltage_delta", "0"));
@@ -220,21 +220,25 @@ public class CpuVddController implements CpuInterface {
 
     }
 
+    public boolean setMinFreq(String newFreq) {
+        return setMinFreq(newFreq, true);
+    }
+
     /**
      * sets minimum frequency for both cpus
      * 
      * @return returns false if the frequency isn't valid
      */
-    public boolean setMinFreq(String newFreq) {
+    public boolean setMinFreq(String newFreq, boolean permanent) {
         boolean a = false;
 
-        a = setMinFreq(0, newFreq);
-        a &= setMinFreq(1, newFreq);
+        a = setMinFreq(0, newFreq, permanent);
+        a &= setMinFreq(1, newFreq, permanent);
 
         return a;
     }
 
-    public boolean setMinFreq(int whichCpu, String newFreq) {
+    public boolean setMinFreq(int whichCpu, String newFreq, boolean permanent) {
         if (!isValidFreq(newFreq))
             return false;
 
@@ -244,7 +248,8 @@ public class CpuVddController implements CpuInterface {
                     ShellInterface.runCommand("echo \"" + newFreq + "\" > "
                             + CPU0_MIN_FREQ_PATH);
                 }
-                editor.putString("cpu0_min_freq", newFreq).apply();
+                if (permanent)
+                    editor.putString("cpu0_min_freq", newFreq).apply();
                 return true;
             case 1:
                 pingCpu1();
@@ -252,7 +257,8 @@ public class CpuVddController implements CpuInterface {
                     ShellInterface.runCommand("echo \"" + newFreq + "\" > "
                             + CPU1_MIN_FREQ_PATH);
                 }
-                editor.putString("cpu1_min_freq", newFreq).apply();
+                if (permanent)
+                    editor.putString("cpu1_min_freq", newFreq).apply();
                 return true;
             default:
                 return false;
@@ -260,21 +266,25 @@ public class CpuVddController implements CpuInterface {
 
     }
 
+    public boolean setMaxFreq(String newFreq) {
+        return setMaxFreq(newFreq, true);
+    }
+
     /**
      * sets maximum frequency for both cpus
      * 
      * @return returns false if the frequency isn't valid
      */
-    public boolean setMaxFreq(String newFreq) {
+    public boolean setMaxFreq(String newFreq, boolean permanent) {
         boolean a = false;
 
-        a = setMaxFreq(0, newFreq);
-        a &= setMaxFreq(1, newFreq);
+        a = setMaxFreq(0, newFreq, permanent);
+        a &= setMaxFreq(1, newFreq, permanent);
 
         return a;
     }
 
-    public boolean setMaxFreq(int whichCpu, String newFreq) {
+    public boolean setMaxFreq(int whichCpu, String newFreq, boolean permanent) {
         if (!isValidFreq(newFreq)) {
             Log.e(TAG, "setMaxFreq failed, tried to set : " + newFreq
                     + " on cpu: " + whichCpu);
@@ -298,7 +308,8 @@ public class CpuVddController implements CpuInterface {
                     ShellInterface.runCommand("echo \"" + newFreq + "\" > "
                             + CPU0_MAX_FREQ_PATH);
                 }
-                editor.putString("cpu0_max_freq", newFreq).apply();
+                if (permanent)
+                    editor.putString("cpu0_max_freq", newFreq).apply();
                 return true;
             case 1:
                 pingCpu1();
@@ -306,7 +317,8 @@ public class CpuVddController implements CpuInterface {
                     ShellInterface.runCommand("echo \"" + newFreq + "\" > "
                             + CPU1_MAX_FREQ_PATH);
                 }
-                editor.putString("cpu1_max_freq", newFreq).apply();
+                if (permanent)
+                    editor.putString("cpu1_max_freq", newFreq).apply();
                 return true;
             default:
                 return false;

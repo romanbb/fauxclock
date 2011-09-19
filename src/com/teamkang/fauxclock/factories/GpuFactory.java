@@ -122,7 +122,7 @@ public class GpuFactory implements SeekBar.OnSeekBarChangeListener {
         return me;
     }
 
-    @Override
+
     public void onStartTrackingTouch(SeekBar seekBar) {
         // TODO Auto-generated method stub
 
