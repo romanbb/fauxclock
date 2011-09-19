@@ -78,7 +78,7 @@ public class CpuVddController implements CpuInterface {
             setMinFreq(0, settings.getString("cpu0_min_freq", getMinFreqSet(0)), true);
             setMaxFreq(0, settings.getString("cpu0_max_freq", getMaxFreqSet(0)), true);
 
-            setMinFreq(1, settings.getString("cpu1_min_freq", getMaxFreqSet(1)), true);
+            setMinFreq(1, settings.getString("cpu1_min_freq", getMinFreqSet(1)), true);
             setMaxFreq(1, settings.getString("cpu1_max_freq", getMaxFreqSet(1)), true);
 
             globalVoltageDelta = Integer.parseInt(settings.getString(
