@@ -114,7 +114,7 @@ public class CpuVddController implements CpuInterface {
             if (freq == null || voltage == null)
                 break;
 
-            freqs.add(freq);
+            freqs.add(freq.trim());
             editor.putString(freq, voltage);
 
             Log.e(TAG, "Freq: " + freq + ", voltage: " + voltage);

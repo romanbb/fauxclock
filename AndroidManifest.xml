@@ -2,13 +2,14 @@
 <manifest
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.teamkang.fauxclock"
-	android:versionName="0.7" android:versionCode="17">
+	android:versionName="0.72" android:versionCode="18">
 	<uses-sdk android:minSdkVersion="10" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
 
 	<application
 		android:icon="@drawable/icon"
-		android:label="@string/app_drawer_name">
+		android:label="@string/app_drawer_name"
+		android:name="OCApplication">
 
 		<activity
 			android:name=".receiver.AppDrawer"

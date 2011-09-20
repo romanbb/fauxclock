@@ -16,22 +16,24 @@
 
 package com.teamkang.fauxclock.receiver;
 
+import com.teamkang.fauxclock.GpuController;
+import com.teamkang.fauxclock.OCApplication;
+import com.teamkang.fauxclock.PhoneManager;
+import com.teamkang.fauxclock.cpu.CpuInterface;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.util.Log;
-
-import com.teamkang.fauxclock.GpuController;
-import com.teamkang.fauxclock.PhoneManager;
-import com.teamkang.fauxclock.cpu.CpuInterface;
 
 public class BootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.e("BootReceiver", "Booted, starting cpu reading!");
-        CpuInterface cpu = PhoneManager.getCpu(context);
+        OCApplication app = ((OCApplication) context.getApplicationContext());
+
+        CpuInterface cpu = app.getCpu();
 
         if (cpu.getSettings().getBoolean("load_on_startup", false)
                 && cpu.getSettings().getBoolean("safe", false)) {
@@ -43,16 +45,12 @@ public class BootReceiver extends BroadcastReceiver {
             // Intent i = new Intent(context, ScreenStateService.class);
             // context.startService(i);
             if (cpu.getSettings().getBoolean("use_screen_off_profile", false)) {
-                IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-                filter.addAction(Intent.ACTION_SCREEN_OFF);
-                BroadcastReceiver mReceiver = new ScreenReceiver();
-                context.registerReceiver(mReceiver, filter);
+                app.registerScreenReceiver();
             }
 
             // load gpu settings
             if (PhoneManager.supportsGpu()) {
-                GpuController gpu = new GpuController(context);
-                gpu.loadValuesFromSettings();
+                app.getGpu().loadValuesFromSettings();
             }
         } else if (!cpu.getSettings().getBoolean("safe", false)) {
             cpu.getEditor().clear().commit();

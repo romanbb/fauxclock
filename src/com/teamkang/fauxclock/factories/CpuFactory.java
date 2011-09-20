@@ -39,6 +39,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.teamkang.fauxclock.ExpandingPreference;
+import com.teamkang.fauxclock.OCApplication;
 import com.teamkang.fauxclock.R;
 import com.teamkang.fauxclock.cpu.CpuInterface;
 import com.teamkang.fauxclock.receiver.ScreenReceiver;
@@ -201,7 +202,7 @@ public class CpuFactory implements OnClickListener,
         cpuMinSeekScreenOff.setMax(Integer.parseInt(cpu.getHighestFreqAvailable()));
         progress = cpu.getSettings().getString("cpu_screenoff_min",
                 cpu.getMinFreqSet());
-        cpuMinSeekScreenOff.setProgress(Integer.parseInt(cpu.getMinFreqSet()));
+        cpuMinSeekScreenOff.setProgress(Integer.parseInt(progress));
         currentCpuMinClockScreenOff.setText(formatMhz(progress));
 
         boolean usingScreenOffProfile = cpu.getSettings().getBoolean("use_screen_off_profile",
@@ -442,17 +443,11 @@ public class CpuFactory implements OnClickListener,
 
                 cpu.getEditor().putBoolean("use_screen_off_profile", checked1).apply();
                 if (checked1) {
+                    ((OCApplication) mContext.getApplicationContext()).registerScreenReceiver();
                     cpuLayoutScreenOff.setVisibility(View.VISIBLE);
-                    IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-                    filter.addAction(Intent.ACTION_SCREEN_OFF);
-                    mContext.registerReceiver(mReceiver, filter);
                 } else {
                     cpuLayoutScreenOff.setVisibility(View.GONE);
-                    try {
-                        mContext.unregisterReceiver(mReceiver);
-                    } catch (IllegalArgumentException e) {
-
-                    }
+                    ((OCApplication) mContext.getApplicationContext()).unregisterScreenRecever();
                 }
                 break;
         }
