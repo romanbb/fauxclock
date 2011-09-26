@@ -59,6 +59,8 @@ public class BootReceiver extends BroadcastReceiver {
             }
         } else if (!cpu.getSettings().getBoolean("safe", false)) {
             cpu.getEditor().clear().commit();
+            // now change the app-known kernel since they're different
+            cpu.getEditor().putString("kernel", newKernel).apply();
         }
 
     }
