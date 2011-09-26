@@ -16,7 +16,6 @@
 
 package com.teamkang.fauxclock.receiver;
 
-import com.teamkang.fauxclock.GpuController;
 import com.teamkang.fauxclock.OCApplication;
 import com.teamkang.fauxclock.PhoneManager;
 import com.teamkang.fauxclock.cpu.CpuInterface;
@@ -34,16 +33,22 @@ public class BootReceiver extends BroadcastReceiver {
         OCApplication app = ((OCApplication) context.getApplicationContext());
 
         CpuInterface cpu = app.getCpu();
+        if (cpu == null)
+            return;
 
+        // do some fancy kernel checking
+        String newKernel = System.getProperty("os.version");
+        String knownKernel = cpu.getSettings().getString("kernel", "");
+
+        // check for 'safe' flag, check whether we want to actually use
+        // settings, and then check for the same kernel string
         if (cpu.getSettings().getBoolean("load_on_startup", false)
-                && cpu.getSettings().getBoolean("safe", false)) {
+                && cpu.getSettings().getBoolean("safe", false) && knownKernel.equals(newKernel)) {
 
             // load cpu settings
             cpu.loadValuesFromSettings();
 
             // logic for screen reciever stuff!
-            // Intent i = new Intent(context, ScreenStateService.class);
-            // context.startService(i);
             if (cpu.getSettings().getBoolean("use_screen_off_profile", false)) {
                 app.registerScreenReceiver();
             }

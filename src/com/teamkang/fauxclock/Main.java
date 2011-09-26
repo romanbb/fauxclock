@@ -56,9 +56,14 @@ public class Main extends Activity {
         cpu = PhoneManager.getCpu(getApplicationContext());
         gpu = PhoneManager.getGpu(getApplicationContext());
 
-        awesomeAdapter = new AwesomePagerAdapter();
-        awesomePager = (ViewPager) findViewById(R.id.awesomepager);
-        awesomePager.setAdapter(awesomeAdapter);
+        if (cpu == null) {
+            this.setContentView(R.layout.unspported_kernel);
+        } else {
+
+            awesomeAdapter = new AwesomePagerAdapter();
+            awesomePager = (ViewPager) findViewById(R.id.awesomepager);
+            awesomePager.setAdapter(awesomeAdapter);
+        }
     }
 
     public void onPause() {
