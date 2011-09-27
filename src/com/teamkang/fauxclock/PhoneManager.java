@@ -22,6 +22,7 @@ import com.teamkang.fauxclock.cpu.CpuVddController;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import java.io.File;
 
@@ -36,11 +37,22 @@ public class PhoneManager {
 
     public static CpuInterface getCpu(Context c) {
         String board = Build.BOARD;
+        // Log.e("FauxClock", "Board: " + board);
 
-        if (board.equals("aries"))
+        if (board.equals("aries")) {
             return new CpuAriesController(c);
-        else
-            return new CpuVddController(c);
+        } else if (board.equals("pyramid")) {
+
+            if (CpuVddController.isSupported()) {
+                // Log.e("FauxClock", "Vdd is supported!");
+                return new CpuVddController(c);
+            } else {
+                // Log.e("FauxClock", "Vdd is NOT supported!");
+                return null;
+            }
+
+        } else
+            return null;
     }
 
     public static GpuController getGpu(Context c) {
@@ -49,12 +61,21 @@ public class PhoneManager {
 
     public CpuInterface getCpu() {
         String board = Build.BOARD;
+        // Log.e("FauxClock", "Board: " + board);
 
-        if (board.equals("aries"))
+        if (board.equals("aries")) {
             return new CpuAriesController(mContext);
-        else if (board.equals("pyramid"))
-            return CpuVddController.isSupported() ? new CpuVddController(mContext) : null;
-        else
+        } else if (board.equals("pyramid")) {
+
+            if (CpuVddController.isSupported()) {
+                // Log.e("FauxClock", "Vdd is supported!");
+                return new CpuVddController(mContext);
+            } else {
+                // Log.e("FauxClock", "Vdd is NOT supported!");
+                return null;
+            }
+
+        } else
             return null;
 
     }

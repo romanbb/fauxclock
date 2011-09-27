@@ -29,7 +29,7 @@ public class BootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.e("BootReceiver", "Booted, starting cpu reading!");
+        Log.e("FauxClock", "Booted, starting cpu reading!");
         OCApplication app = ((OCApplication) context.getApplicationContext());
 
         CpuInterface cpu = app.getCpu();
@@ -38,14 +38,17 @@ public class BootReceiver extends BroadcastReceiver {
 
         // do some fancy kernel checking
         String newKernel = System.getProperty("os.version");
-        String knownKernel = cpu.getSettings().getString("kernel", "");
-        Log.d("FauxClock", "previous kernel: " + knownKernel);
+        String previousKernel = cpu.getSettings().getString("kernel", "");
+
+        Log.e("FauxClock", "previous kernel: " + previousKernel);
         Log.e("FauxClock", "new kernel" + newKernel);
+
+        cpu.getEditor().putString("kernel", newKernel).apply();
 
         // check for 'safe' flag, check whether we want to actually use
         // settings, and then check for the same kernel string
         if (cpu.getSettings().getBoolean("load_on_startup", false)
-                && cpu.getSettings().getBoolean("safe", false) && knownKernel.equals(newKernel)) {
+                && cpu.getSettings().getBoolean("safe", false) && previousKernel.equals(newKernel)) {
 
             // load cpu settings
             cpu.loadValuesFromSettings();
@@ -61,8 +64,6 @@ public class BootReceiver extends BroadcastReceiver {
             }
         } else if (!cpu.getSettings().getBoolean("safe", false)) {
             cpu.getEditor().clear().commit();
-            // now change the app-known kernel since they're different
-            cpu.getEditor().putString("kernel", newKernel).apply();
 
         }
 

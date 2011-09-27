@@ -50,16 +50,16 @@ public class Main extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.awesome);
         mContext = this;
 
-        cpu = PhoneManager.getCpu(getApplicationContext());
-        gpu = PhoneManager.getGpu(getApplicationContext());
+        cpu = ((OCApplication) mContext.getApplicationContext()).getCpu();
+        gpu = ((OCApplication) mContext.getApplicationContext()).getGpu();
 
         if (cpu == null) {
+            // Log.e("FauxClock", "Cpu is null in Main");
             this.setContentView(R.layout.unspported_kernel);
         } else {
-
+            setContentView(R.layout.awesome);
             awesomeAdapter = new AwesomePagerAdapter();
             awesomePager = (ViewPager) findViewById(R.id.awesomepager);
             awesomePager.setAdapter(awesomeAdapter);

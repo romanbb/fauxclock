@@ -72,7 +72,8 @@ public class CpuVddController implements CpuInterface {
     }
 
     public static boolean isSupported() {
-        return new File(cpuTablePath).isFile();
+        Log.e("FauxClock", "is supported vdd was called");
+        return new File(cpuTablePath).exists();
     }
 
     public void loadValuesFromSettings() {
@@ -249,6 +250,7 @@ public class CpuVddController implements CpuInterface {
 
         switch (whichCpu) {
             case 0:
+                Log.e("FauxClock", "setMinFreq(0): " + newFreq);
                 if (ShellInterface.isSuAvailable()) {
                     ShellInterface.runCommand("echo \"" + newFreq + "\" > "
                             + CPU0_MIN_FREQ_PATH);
@@ -257,6 +259,7 @@ public class CpuVddController implements CpuInterface {
                     editor.putString("cpu0_min_freq", newFreq).apply();
                 return true;
             case 1:
+                Log.e("FauxClock", "setMinFreq(1): " + newFreq);
                 pingCpu1();
                 if (ShellInterface.isSuAvailable()) {
                     ShellInterface.runCommand("echo \"" + newFreq + "\" > "
@@ -355,13 +358,20 @@ public class CpuVddController implements CpuInterface {
      * @return null if invalid param is sent in
      */
     public String getMinFreqSet(int whichCpu) {
+        String output = "";
         switch (whichCpu) {
             case 0:
-                return ShellInterface.getProcessOutput("cat "
+                output = ShellInterface.getProcessOutput("cat "
                         + CPU0_MIN_FREQ_PATH);
+                Log.e("FauxClock", "getMinFreqSet(0): " + output);
+                return output;
             case 1:
-                return ShellInterface.getProcessOutput("cat "
+
+                output = ShellInterface.getProcessOutput("cat "
                         + CPU1_MIN_FREQ_PATH);
+                Log.e("FauxClock", "getMinFreqSet(1): " + output);
+                return output;
+
             default:
                 Log.e(TAG, "getMinFreq() failed with cpu:" + whichCpu);
                 return null;
