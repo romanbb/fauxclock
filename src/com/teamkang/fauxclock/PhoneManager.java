@@ -53,7 +53,7 @@ public class PhoneManager {
         if (board.equals("aries"))
             return new CpuAriesController(mContext);
         else if (board.equals("pyramid"))
-            return new CpuVddController(mContext);
+            return CpuVddController.isSupported() ? new CpuVddController(mContext) : null;
         else
             return null;
 

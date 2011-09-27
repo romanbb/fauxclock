@@ -39,6 +39,8 @@ public class BootReceiver extends BroadcastReceiver {
         // do some fancy kernel checking
         String newKernel = System.getProperty("os.version");
         String knownKernel = cpu.getSettings().getString("kernel", "");
+        Log.d("FauxClock", "previous kernel: " + knownKernel);
+        Log.e("FauxClock", "new kernel" + newKernel);
 
         // check for 'safe' flag, check whether we want to actually use
         // settings, and then check for the same kernel string
@@ -61,6 +63,7 @@ public class BootReceiver extends BroadcastReceiver {
             cpu.getEditor().clear().commit();
             // now change the app-known kernel since they're different
             cpu.getEditor().putString("kernel", newKernel).apply();
+
         }
 
     }

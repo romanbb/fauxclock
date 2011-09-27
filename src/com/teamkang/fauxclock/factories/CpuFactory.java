@@ -429,7 +429,7 @@ public class CpuFactory implements OnClickListener,
 
     public void onClick(View v) {
 
-        boolean visible;
+        // boolean visible;
 
         switch (v.getId()) {
             case R.id.set_on_boot:
@@ -445,6 +445,10 @@ public class CpuFactory implements OnClickListener,
                 if (checked1) {
                     ((OCApplication) mContext.getApplicationContext()).registerScreenReceiver();
                     cpuLayoutScreenOff.setVisibility(View.VISIBLE);
+
+                    cpu.setMaxFreq(cpu.getMaxFreqSet());
+                    cpu.setMinFreq(cpu.getMinFreqSet());
+
                 } else {
                     cpuLayoutScreenOff.setVisibility(View.GONE);
                     ((OCApplication) mContext.getApplicationContext()).unregisterScreenRecever();

@@ -24,6 +24,7 @@ import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -68,6 +69,10 @@ public class CpuVddController implements CpuInterface {
 
         readVddCpuTable();
         readGovernersFromSystem();
+    }
+
+    public static boolean isSupported() {
+        return new File(cpuTablePath).isFile();
     }
 
     public void loadValuesFromSettings() {
@@ -145,23 +150,23 @@ public class CpuVddController implements CpuInterface {
     }
 
     public String getMaxFreqFromSettings() {
-        return settings.getString("cpu0_max", getMaxFreqSet());
+        return settings.getString("cpu0_max_freq", getMaxFreqSet());
     }
 
     public String getMaxFreqFromSettings(int whichCpu) {
 
-        return settings.getString("cpu" + whichCpu + "_max",
+        return settings.getString("cpu" + whichCpu + "_max_freq",
                 getMaxFreqSet(whichCpu));
 
     }
 
     public String getMinFreqFromSettings() {
-        return settings.getString("cpu0_min", getMinFreqSet());
+        return settings.getString("cpu0_min_freq", getMinFreqSet());
     }
 
     public String getMinFreqFromSettings(int whichCpu) {
 
-        return settings.getString("cpu" + whichCpu + "_min",
+        return settings.getString("cpu" + whichCpu + "_min_frew",
                 getMinFreqSet(whichCpu));
 
     }
@@ -352,15 +357,11 @@ public class CpuVddController implements CpuInterface {
     public String getMinFreqSet(int whichCpu) {
         switch (whichCpu) {
             case 0:
-                if (ShellInterface.isSuAvailable()) {
-                    return ShellInterface.getProcessOutput("cat "
-                            + CPU0_MIN_FREQ_PATH);
-                }
+                return ShellInterface.getProcessOutput("cat "
+                        + CPU0_MIN_FREQ_PATH);
             case 1:
-                if (ShellInterface.isSuAvailable()) {
-                    return ShellInterface.getProcessOutput("cat "
-                            + CPU1_MIN_FREQ_PATH);
-                }
+                return ShellInterface.getProcessOutput("cat "
+                        + CPU1_MIN_FREQ_PATH);
             default:
                 Log.e(TAG, "getMinFreq() failed with cpu:" + whichCpu);
                 return null;
