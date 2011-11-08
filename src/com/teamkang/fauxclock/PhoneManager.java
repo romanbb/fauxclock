@@ -41,22 +41,17 @@ public class PhoneManager {
 
         if (board.equals("aries")) {
             return new CpuAriesController(c);
-        } else if (board.equals("pyramid")) {
-
-            if (CpuVddController.isSupported()) {
-                // Log.e("FauxClock", "Vdd is supported!");
-                return new CpuVddController(c);
-            } else {
-                // Log.e("FauxClock", "Vdd is NOT supported!");
-                return null;
-            }
+        }
+        if (CpuVddController.isSupported()) {
+            // Log.e("FauxClock", "Vdd is supported!");
+            return new CpuVddController(c);
 
         } else
             return null;
     }
 
     public static GpuController getGpu(Context c) {
-        return supportsGpu() ? new GpuController(c) : null;
+        return GpuController.isSupported() ? new GpuController(c) : null;
     }
 
     public CpuInterface getCpu() {

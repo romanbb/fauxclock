@@ -13,17 +13,21 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
+
 package com.teamkang.fauxclock;
+
+import java.io.File;
 
 import ru.org.amip.MarketAccess.utils.ShellInterface;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 public class GpuController {
 
     // gpu stuff
-    private String gpuGovernerPath = "/sys/devices/platform/kgsl/msm_kgsl/kgsl-3d0/scaling_governor";
+    private static String gpuGovernerPath = "/sys/devices/platform/kgsl/msm_kgsl/kgsl-3d0/scaling_governor";
     private String gpuIOFractionPath = "/sys/devices/platform/kgsl/msm_kgsl/kgsl-3d0/io_fraction";
 
     public String[] govs = {
@@ -40,6 +44,18 @@ public class GpuController {
 
         settings = mContext.getSharedPreferences("gpu", 0);
         editor = settings.edit();
+    }
+
+    public static boolean isSupported() {
+        return new File(gpuGovernerPath).exists();
+    }
+
+    public void runCommand(String c) {
+        Intent si = new Intent(mContext, ShellService.class);
+        si.putExtra("command", c);
+        // Log.i(TAG, "Running: " + c);
+        mContext.startService(si);
+
     }
 
     public void loadValuesFromSettings() {
@@ -72,11 +88,10 @@ public class GpuController {
     }
 
     public void setGpuGoverner(String newGov) {
-        if (ShellInterface.isSuAvailable()) {
-            ShellInterface.runCommand("echo \"" + newGov + "\" > "
-                    + gpuGovernerPath);
-            editor.putString("gpu_gov", newGov);
-        }
+
+        runCommand("echo \"" + newGov + "\" > "
+                + gpuGovernerPath);
+        editor.putString("gpu_gov", newGov);
 
     }
 
@@ -85,11 +100,11 @@ public class GpuController {
     }
 
     public void setGpuIOFraction(int newFrac) {
-        if (ShellInterface.isSuAvailable()) {
-            ShellInterface.runCommand("echo \"" + newFrac + "\" > "
-                    + gpuIOFractionPath);
-            editor.putString("gpu_io_fraction", newFrac + "").apply();
-        }
+
+        runCommand("echo \"" + newFrac + "\" > "
+                + gpuIOFractionPath);
+        editor.putString("gpu_io_fraction", newFrac + "").apply();
+
     }
 
 }

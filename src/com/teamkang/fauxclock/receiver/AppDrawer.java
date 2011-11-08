@@ -15,6 +15,7 @@
  */
 package com.teamkang.fauxclock.receiver;
 
+import com.teamkang.fauxclock.CheckRoot;
 import com.teamkang.fauxclock.Main;
 
 import android.app.Activity;
@@ -27,7 +28,7 @@ public class AppDrawer extends Activity {
     public void onCreate(Bundle ofLove) {
         super.onCreate(ofLove);
 
-        startActivity(new Intent(getApplicationContext(), Main.class));
+        startActivity(new Intent(getApplicationContext(), CheckRoot.class));
         this.finish();
     }
 }

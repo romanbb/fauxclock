@@ -85,4 +85,6 @@ public interface CpuInterface {
      */
     boolean setMinFreq(String newFreq, boolean permanent);
 
+    void fixPermissions();
+
 }

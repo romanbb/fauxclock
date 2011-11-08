@@ -20,8 +20,6 @@ import java.text.DecimalFormat;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
@@ -79,6 +77,7 @@ public class CpuFactory implements OnClickListener,
 
     CheckBox useScreenOffProfile;
     CheckBox enableOnBootCheckBox;
+    CheckBox pingCpu1BootCheckBox;
 
     View me;
 
@@ -87,6 +86,8 @@ public class CpuFactory implements OnClickListener,
     TextView tabRight;
 
     private CpuInterface cpu;
+
+    boolean touchingScreen = false;
 
     public CpuFactory(Context c, CpuInterface ci) {
         mContext = c;
@@ -124,21 +125,19 @@ public class CpuFactory implements OnClickListener,
 
         cpuMaxSeek = (SeekBar) me.findViewById(R.id.cpu_max_seek);
         cpuMaxSeek.setOnSeekBarChangeListener(this);
-        cpuMaxSeek.setMax(Integer.parseInt(cpu.getHighestFreqAvailable()));
-        cpuMaxSeek.setProgress(Integer.parseInt(cpu.getMaxFreqSet()));
 
         cpuMinSeek = (SeekBar) me.findViewById(R.id.cpu_min_seek);
         cpuMinSeek.setOnSeekBarChangeListener(this);
-        cpuMinSeek.setMax(Integer.parseInt(cpu.getHighestFreqAvailable()));
-        cpuMinSeek.setProgress(Integer.parseInt(cpu.getMinFreqSet()));
 
         currentCpuMaxClock = (TextView) me.findViewById(R.id.cpu_max_clock);
-        currentCpuMaxClock.setText(formatMhz(cpu.getMaxFreqSet()));
         currentCpuMinClock = (TextView) me.findViewById(R.id.cpu_min_clock);
-        currentCpuMinClock.setText(formatMhz(cpu.getMinFreqSet()));
 
         currentCpu0Clock = (TextView) me.findViewById(R.id.cpu0_freq);
         currentCpu1Clock = (TextView) me.findViewById(R.id.cpu1_freq);
+
+        pingCpu1BootCheckBox = (CheckBox) me.findViewById(R.id.ping_cpu_1);
+        pingCpu1BootCheckBox.setChecked(pingCpu1());
+        pingCpu1BootCheckBox.setVisibility(View.GONE);
 
         /* governer */
         cpuGovSpinner = (Spinner) me.findViewById(R.id.cpu_gov_spinner);
@@ -148,8 +147,7 @@ public class CpuFactory implements OnClickListener,
         govSpinnerAdapter
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         cpuGovSpinner.setAdapter(govSpinnerAdapter);
-        cpuGovSpinner.setSelection(govSpinnerAdapter.getPosition(cpu
-                .getCurrentGoverner()));
+        cpuGovSpinner.setSelection(govSpinnerAdapter.getPosition(cpu.getCurrentGoverner()));
         cpuGovSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
             public void onItemSelected(AdapterView<?> parent, View view,
@@ -170,6 +168,7 @@ public class CpuFactory implements OnClickListener,
             currentCpu1Clock.setVisibility(View.GONE);
 
             me.findViewById(R.id.cpu_divider).setVisibility(View.GONE);
+            pingCpu1BootCheckBox.setVisibility(View.GONE);
         }
 
         enableOnBootCheckBox = (CheckBox) me.findViewById(R.id.set_on_boot);
@@ -191,22 +190,21 @@ public class CpuFactory implements OnClickListener,
         currentCpuMinClockScreenOff = (TextView) me.findViewById(R.id.cpu_min_clock_screen_off);
 
         cpuMaxSeekScreenOff.setOnSeekBarChangeListener(this);
-        cpuMaxSeekScreenOff.setMax(Integer.parseInt(cpu.getHighestFreqAvailable()));
-
-        String progress = cpu.getSettings().getString("cpu_screenoff_max",
-                cpu.getMaxFreqSet());
-        cpuMaxSeekScreenOff.setProgress(Integer.parseInt(progress));
-        currentCpuMaxClockScreenOff.setText(formatMhz(progress));
-
         cpuMinSeekScreenOff.setOnSeekBarChangeListener(this);
-        cpuMinSeekScreenOff.setMax(Integer.parseInt(cpu.getHighestFreqAvailable()));
-        progress = cpu.getSettings().getString("cpu_screenoff_min",
-                cpu.getMinFreqSet());
-        cpuMinSeekScreenOff.setProgress(Integer.parseInt(progress));
-        currentCpuMinClockScreenOff.setText(formatMhz(progress));
 
-        boolean usingScreenOffProfile = cpu.getSettings().getBoolean("use_screen_off_profile",
-                false);
+//        cpuMaxSeekScreenOff.setMax(Integer.parseInt(cpu.getHighestFreqAvailable()));
+//
+//        String progress = cpu.getSettings().getString("cpu_screenoff_max", cpu.getMaxFreqSet());
+//        cpuMaxSeekScreenOff.setProgress(Integer.parseInt(progress));
+//        currentCpuMaxClockScreenOff.setText(formatMhz(progress));
+//
+//        cpuMinSeekScreenOff.setMax(Integer.parseInt(cpu.getHighestFreqAvailable()));
+//        progress = cpu.getSettings().getString("cpu_screenoff_min", cpu.getMinFreqSet());
+//        Log.e(TAG, "min progress: " + progress);
+//        cpuMinSeekScreenOff.setProgress(Integer.parseInt(progress));
+//        currentCpuMinClockScreenOff.setText(formatMhz(progress));
+
+        boolean usingScreenOffProfile = cpu.getSettings().getBoolean("use_screen_off_profile", false);
         useScreenOffProfile.setOnClickListener(this);
         useScreenOffProfile.setChecked(usingScreenOffProfile);
         if (usingScreenOffProfile) {
@@ -217,6 +215,58 @@ public class CpuFactory implements OnClickListener,
 
         /* finally! */
         refreshClocks();
+        refreshSliders();
+        refreshScreenOffSliders();
+    }
+
+    public void refreshScreenOffSliders() {
+        if (touchingScreen)
+            return;
+
+        String temp;
+
+        temp = cpu.getHighestFreqAvailable();
+        if (temp != null && !temp.equals("")) {
+            cpuMaxSeekScreenOff.setMax(Integer.parseInt(temp));
+            cpuMinSeekScreenOff.setMax(Integer.parseInt(temp));
+        }
+
+        temp = cpu.getSettings().getString("cpu_screenoff_max", cpu.getMaxFreqSet());
+        if (temp != null && !temp.equals("")) {
+            cpuMaxSeekScreenOff.setProgress(Integer.parseInt(temp));
+            currentCpuMaxClockScreenOff.setText(formatMhz(temp));
+        }
+
+        temp = cpu.getSettings().getString("cpu_screenoff_min", cpu.getMinFreqSet());
+        if (temp != null && !temp.equals("")) {
+            cpuMinSeekScreenOff.setProgress(Integer.parseInt(temp));
+            currentCpuMinClockScreenOff.setText(formatMhz(temp));
+        }
+    }
+
+    public void refreshSliders() {
+        if (touchingScreen)
+            return;
+
+        String temp;
+
+        temp = cpu.getHighestFreqAvailable();
+        if (temp != null && !temp.equals("")) {
+            cpuMaxSeek.setMax(Integer.parseInt(temp));
+            cpuMinSeek.setMax(Integer.parseInt(temp));
+        }
+
+        temp = cpu.getMaxFreqSet();
+        if (temp != null && !temp.equals("")) {
+            cpuMaxSeek.setProgress(Integer.parseInt(temp));
+            currentCpuMaxClock.setText(formatMhz(temp));
+        }
+
+        temp = cpu.getMinFreqSet();
+        if (temp != null && !temp.equals("")) {
+            cpuMinSeek.setProgress(Integer.parseInt(temp));
+            currentCpuMinClock.setText(formatMhz(temp));
+        }
 
     }
 
@@ -236,6 +286,7 @@ public class CpuFactory implements OnClickListener,
 
         // using dual core settings here, come up with something more clever
         // currentCpu0Clock.setText(formatMhz(cpu.getCurrentFrequency()));
+
         mHandler.removeCallbacks(mUpdateClockTimeTask);
         mHandler.postDelayed(mUpdateClockTimeTask, 100);
     }
@@ -257,13 +308,14 @@ public class CpuFactory implements OnClickListener,
                 // Log.e(TAG, "for: " + i);
                 if (i == 0)
                     currentCpu0Clock.setText(formatMhz(cpus[0]));
-                else if (i == 1)
+                else if (i == 1) {
                     currentCpu1Clock.setText(formatMhz(cpus[1]));
+                } 
 
             }
-
-            // Log.e(TAG, "for done, posting again!");
-            mHandler.postAtTime(this, SystemClock.uptimeMillis() + 1000);
+            mHandler.postDelayed(mUpdateClockTimeTask, 1000);
+            refreshSliders();
+            refreshScreenOffSliders();
         }
     };
 
@@ -338,8 +390,7 @@ public class CpuFactory implements OnClickListener,
 
     }
 
-    public void onProgressChanged(SeekBar seekBar, int progress,
-            boolean fromUser) {
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
         switch (seekBar.getId()) {
             case R.id.cpu_max_seek_screen_off:
@@ -406,7 +457,7 @@ public class CpuFactory implements OnClickListener,
     }
 
     public void onStartTrackingTouch(SeekBar seekBar) {
-        // TODO Auto-generated method stub
+        touchingScreen = true;
 
     }
 
@@ -425,6 +476,7 @@ public class CpuFactory implements OnClickListener,
                 cpu.getEditor().putString("cpu_screenoff_min", seekBar.getProgress() + "").apply();
                 break;
         }
+        touchingScreen = false;
     }
 
     public void onClick(View v) {
@@ -454,6 +506,16 @@ public class CpuFactory implements OnClickListener,
                     ((OCApplication) mContext.getApplicationContext()).unregisterScreenRecever();
                 }
                 break;
+            case R.id.ping_cpu_1:
+                boolean checked2 = ((CheckBox) v).isChecked();
+
+                cpu.getEditor().putBoolean("ping_cpu_1", checked2).apply();
+
+                break;
         }
+    }
+    
+    public boolean pingCpu1() {
+        return cpu.getSettings().getBoolean("ping_cpu_1", true);
     }
 }

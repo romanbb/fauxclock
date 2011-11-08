@@ -16,20 +16,20 @@
 
 package com.teamkang.fauxclock;
 
-import com.teamkang.fauxclock.cpu.CpuInterface;
-import com.teamkang.fauxclock.factories.CpuFactory;
-import com.teamkang.fauxclock.factories.GpuFactory;
-import com.teamkang.fauxclock.factories.VoltageFactory;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.teamkang.fauxclock.cpu.CpuInterface;
+import com.teamkang.fauxclock.factories.CpuFactory;
+import com.teamkang.fauxclock.factories.GpuFactory;
+import com.teamkang.fauxclock.factories.VoltageFactory;
 
 public class Main extends Activity {
 
@@ -50,10 +50,16 @@ public class Main extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mContext = this;
 
-        cpu = ((OCApplication) mContext.getApplicationContext()).getCpu();
-        gpu = ((OCApplication) mContext.getApplicationContext()).getGpu();
+        try {
+            cpu = ((OCApplication) mContext.getApplicationContext()).getCpu();
+            gpu = ((OCApplication) mContext.getApplicationContext()).getGpu();
+        } catch (Exception e) {
+            cpu = null;
+            Toast.makeText(mContext, "Oh no! There was an error. Please report it!", Toast.LENGTH_LONG);
+        }
 
         if (cpu == null) {
             // Log.e("FauxClock", "Cpu is null in Main");
@@ -63,7 +69,9 @@ public class Main extends Activity {
             awesomeAdapter = new AwesomePagerAdapter();
             awesomePager = (ViewPager) findViewById(R.id.awesomepager);
             awesomePager.setAdapter(awesomeAdapter);
+
         }
+
     }
 
     public void onPause() {

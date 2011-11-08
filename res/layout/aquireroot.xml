@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	android:id="@+id/entry_layout"
+	android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:orientation="vertical">
+	<RelativeLayout
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:id="@+id/statuslayout"
+		android:layout_below="@+id/piclayout">
+		<TextView
+			android:text="Loading"
+			android:layout_width="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_centerVertical="true"
+			android:layout_height="50dip"
+			android:layout_margin="6dip"
+			android:gravity="center_vertical"
+			android:id="@+id/status" />
+		<ProgressBar
+			android:indeterminate="true"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/progressBar1"
+			android:layout_toLeftOf="@+id/status"
+			android:layout_alignTop="@+id/status"
+			android:layout_alignBottom="@+id/status" />
+	</RelativeLayout>
+	<RelativeLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:layout_centerHorizontal="true"
+		android:layout_centerVertical="true"
+		android:layout_centerInParent="true"
+		android:gravity="center_vertical|center_horizontal"
+		android:id="@+id/piclayout">
+		<ImageView
+			android:id="@+id/imageView1"
+			android:src="@drawable/icon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true" />
+	</RelativeLayout>
+
+
+
+</RelativeLayout>

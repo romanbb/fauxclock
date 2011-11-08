@@ -16,20 +16,26 @@
 
 package com.teamkang.fauxclock.cpu;
 
-import ru.org.amip.MarketAccess.utils.ShellInterface;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
+import ru.org.amip.MarketAccess.utils.ShellInterface;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import com.teamkang.fauxclock.OCApplication;
+import com.teamkang.fauxclock.ShellService;
 
 public class CpuVddController implements CpuInterface {
 
@@ -45,7 +51,8 @@ public class CpuVddController implements CpuInterface {
     private static String CPU1_CUR_FREQ_PATH = "/sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq";
 
     private static String CPU_GOVS_LIST_PATH = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors";
-    private static String CPU_CURRENT_GOV = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor";
+    private static String CPU0_CURRENT_GOV = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor";
+    private static String CPU1_CURRENT_GOV = "/sys/devices/system/cpu/cpu1/cpufreq/scaling_governor";
 
     // private static HashMap<String, String> cpu_table;
     private ArrayList<String> freqs;
@@ -61,19 +68,45 @@ public class CpuVddController implements CpuInterface {
 
     public static final String TAG = "CpuVddController";
 
+    OCApplication root;
+
     public CpuVddController(Context c) {
         mContext = c;
+       fixPermissions();
+        // root = ((OCApplication) c.getApplicationContext());
 
         settings = mContext.getSharedPreferences("cpu_table", 0);
         editor = settings.edit();
 
-        readVddCpuTable();
+        
         readGovernersFromSystem();
+        readVddCpuTable();
+        
+    }
+    
+    public void fixPermissions() {
+        runCommand("chmod 666 " + CPU_GOVS_LIST_PATH);
+        runCommand("chmod 666 " + CPU0_CURRENT_GOV);
+        runCommand("chmod 666 " + CPU0_MAX_FREQ_PATH);
+        runCommand("chmod 666 " + CPU0_MIN_FREQ_PATH);
+        runCommand("chmod 666 " + CPU0_CUR_FREQ_PATH);
+        runCommand("chmod 666 " + CPU1_MAX_FREQ_PATH);
+        runCommand("chmod 666 " + CPU1_MIN_FREQ_PATH);
+        runCommand("chmod 666 " + CPU1_CUR_FREQ_PATH);
     }
 
     public static boolean isSupported() {
         Log.e("FauxClock", "is supported vdd was called");
         return new File(cpuTablePath).exists();
+    }
+
+    public void runCommand(String c) {
+        // Log.e(TAG, "Running command: " + c);
+        Intent si = new Intent(mContext, ShellService.class);
+        si.putExtra("command", c);
+        // Log.i(TAG, "Running: " + c);
+        mContext.startService(si);
+
     }
 
     public void loadValuesFromSettings() {
@@ -87,12 +120,63 @@ public class CpuVddController implements CpuInterface {
             setMinFreq(1, settings.getString("cpu1_min_freq", getMinFreqSet(1)), true);
             setMaxFreq(1, settings.getString("cpu1_max_freq", getMaxFreqSet(1)), true);
 
-            globalVoltageDelta = Integer.parseInt(settings.getString(
-                    "voltage_delta", "0"));
-            setGlobalVoltageDelta(globalVoltageDelta);
+            // globalVoltageDelta = Integer.parseInt(settings.getString(
+            // "voltage_delta", "0"));
+            // setGlobalVoltageDelta(globalVoltageDelta);
         } catch (ClassCastException e) {
         }
 
+    }
+
+    public String readOneLineFile(String fileName) {
+        runCommand("chmod 666 " + fileName);
+        String out = null;
+        FileInputStream fis;
+        try {
+            
+            fis = new FileInputStream(fileName);
+
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            DataInputStream dis = new DataInputStream(bis);
+            out = dis.readLine();
+            dis.close();
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return out;
+    }
+
+    public String readFile(String fileName) {
+        runCommand("chmod 666 " + fileName);
+        String out = "";
+        FileInputStream fis;
+        try {
+            
+            fis = new FileInputStream(fileName);
+
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            DataInputStream dis = new DataInputStream(bis);
+
+            do {
+                String line = dis.readLine();
+                if (line == null)
+                    break;
+                out += line;
+                Log.i(TAG, "adding: " + line);
+            } while (true);
+            dis.close();
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return out;
     }
 
     public int getNumberOfCores() {
@@ -101,17 +185,17 @@ public class CpuVddController implements CpuInterface {
 
     public void readVddCpuTable() {
         freqs = new ArrayList<String>();
-        String vdd_table = "";
 
         // read table into string
-        if (ShellInterface.isSuAvailable()) {
-            vdd_table = ShellInterface.getProcessOutput("cat " + cpuTablePath);
-        }
-        StringTokenizer st = new StringTokenizer(vdd_table);
+        // if (ShellInterface.isSuAvailable())
+        // vdd_table = ShellInterface.getProcessOutput("cat " + cpuTablePath);
+        // Log.e(TAG, "readVddTable: " + vdd_table);
+
+        StringTokenizer st = new StringTokenizer(readFile(cpuTablePath));
 
         // break up string, read values, set keys, voltages
-        while (st.hasMoreTokens()) {
-            // String line = st.nextToken();
+        while (st.hasMoreElements()) {
+
             String freq = st.nextToken().trim();
             freq = freq.substring(0, freq.indexOf(":"));
 
@@ -125,6 +209,7 @@ public class CpuVddController implements CpuInterface {
 
             Log.e(TAG, "Freq: " + freq + ", voltage: " + voltage);
         }
+        ;
 
         editor.apply();
     }
@@ -134,19 +219,14 @@ public class CpuVddController implements CpuInterface {
     }
 
     public String getCurrentGoverner() {
-        String g = "";
+        return readOneLineFile(CPU0_CURRENT_GOV);
 
-        if (ShellInterface.isSuAvailable()) {
-            g = ShellInterface.getProcessOutput("cat " + CPU_CURRENT_GOV);
-        }
-
-        return g;
     }
 
     public void pingCpu1() {
-        if (ShellInterface.isSuAvailable()) {
-            ShellInterface
-                    .runCommand("echo \"1\" > /sys/devices/system/cpu/cpu1/online");
+        if (settings.getBoolean("ping_cpu_1", true)) {
+            runCommand("echo \"1\" > /sys/devices/system/cpu/cpu1/online");
+            // Log.e(TAG, "pinged cpu1");
         }
     }
 
@@ -173,6 +253,7 @@ public class CpuVddController implements CpuInterface {
     }
 
     public ArrayList<String> getFreqs() {
+
         return freqs;
     }
 
@@ -194,35 +275,38 @@ public class CpuVddController implements CpuInterface {
         String output = "";
 
         // read table into string
-        if (ShellInterface.isSuAvailable()) {
-            output = ShellInterface.getProcessOutput("cat "
-                    + CPU_GOVS_LIST_PATH);
-        }
-        StringTokenizer st = new StringTokenizer(output);
+
+        // output = ShellInterface.getProcessOutput("cat " +
+        // CPU_GOVS_LIST_PATH);
+        //
+        // StringTokenizer st = new StringTokenizer(output);
+
+        StringTokenizer gov = new StringTokenizer(readOneLineFile(CPU_GOVS_LIST_PATH));
 
         // break up string, read values, set keys, voltages
-        while (st.hasMoreTokens()) {
-            // String line = st.nextToken();
-            String gov = st.nextToken().trim();
+        while (gov.hasMoreElements()) {
+            String line = gov.nextToken();
 
-            Log.e(TAG, "Gov: " + gov);
-            govs.add(gov);
-
+            Log.e(TAG, "Gov: " + line);
+            govs.add(line);
         }
+
     }
 
     public boolean setGoverner(String newGov) {
         if (!isValidGov(newGov))
             return false;
 
-        if (ShellInterface.isSuAvailable()) {
-            ShellInterface.getProcessOutput("echo \"" + newGov + "\" > "
-                    + CPU_CURRENT_GOV);
-            editor.putString("cpu_gov", newGov).apply();
-            return true;
-        }
+        runCommand("echo \"" + newGov + "\" > "
+                + CPU0_CURRENT_GOV);
 
-        return false;
+        if (new File(CPU1_CURRENT_GOV).exists()) {
+            // Log.e(TAG, "writing cpu1 gov");
+            runCommand("chmod 666 CPU1_CURRENT_GOV");
+            runCommand("echo \"" + newGov + "\" > " + CPU1_CURRENT_GOV);
+        }
+        editor.putString("cpu_gov", newGov).apply();
+        return true;
 
     }
 
@@ -251,20 +335,20 @@ public class CpuVddController implements CpuInterface {
         switch (whichCpu) {
             case 0:
                 Log.e("FauxClock", "setMinFreq(0): " + newFreq);
-                if (ShellInterface.isSuAvailable()) {
-                    ShellInterface.runCommand("echo \"" + newFreq + "\" > "
-                            + CPU0_MIN_FREQ_PATH);
-                }
+
+                runCommand("echo \"" + newFreq + "\" > "
+                        + CPU0_MIN_FREQ_PATH);
+
                 if (permanent)
                     editor.putString("cpu0_min_freq", newFreq).apply();
                 return true;
             case 1:
                 Log.e("FauxClock", "setMinFreq(1): " + newFreq);
                 pingCpu1();
-                if (ShellInterface.isSuAvailable()) {
-                    ShellInterface.runCommand("echo \"" + newFreq + "\" > "
-                            + CPU1_MIN_FREQ_PATH);
-                }
+
+                runCommand("echo \"" + newFreq + "\" > "
+                        + CPU1_MIN_FREQ_PATH);
+
                 if (permanent)
                     editor.putString("cpu1_min_freq", newFreq).apply();
                 return true;
@@ -300,31 +384,31 @@ public class CpuVddController implements CpuInterface {
         }
 
         int f = Integer.parseInt(newFreq);
-        if (f < Integer.parseInt(getHighestFreqAvailable())) {
-            if (ShellInterface.isSuAvailable()) {
-                ShellInterface.runCommand("stop thermald");
-            }
-        } else {
-            if (ShellInterface.isSuAvailable()) {
-                ShellInterface.runCommand("start thermald");
-            }
-        }
+        // if (f < Integer.parseInt(getHighestFreqAvailable())) {
+        //
+        // runCommand("stop thermald");
+        //
+        // } else {
+        //
+        // runCommand("start thermald");
+        //
+        // }
 
         switch (whichCpu) {
             case 0:
-                if (ShellInterface.isSuAvailable()) {
-                    ShellInterface.runCommand("echo \"" + newFreq + "\" > "
-                            + CPU0_MAX_FREQ_PATH);
-                }
+
+                runCommand("echo \"" + newFreq + "\" > "
+                        + CPU0_MAX_FREQ_PATH);
+
                 if (permanent)
                     editor.putString("cpu0_max_freq", newFreq).apply();
                 return true;
             case 1:
                 pingCpu1();
-                if (ShellInterface.isSuAvailable()) {
-                    ShellInterface.runCommand("echo \"" + newFreq + "\" > "
-                            + CPU1_MAX_FREQ_PATH);
-                }
+
+                runCommand("echo \"" + newFreq + "\" > "
+                        + CPU1_MAX_FREQ_PATH);
+
                 if (permanent)
                     editor.putString("cpu1_max_freq", newFreq).apply();
                 return true;
@@ -359,24 +443,44 @@ public class CpuVddController implements CpuInterface {
      */
     public String getMinFreqSet(int whichCpu) {
         String output = "";
+        String which;
+        int min = Integer.MAX_VALUE;
         switch (whichCpu) {
             case 0:
-                output = ShellInterface.getProcessOutput("cat "
-                        + CPU0_MIN_FREQ_PATH);
-                Log.e("FauxClock", "getMinFreqSet(0): " + output);
-                return output;
+                which = CPU0_MIN_FREQ_PATH;
+                // output = ShellInterface.getProcessOutput("cat "
+                // + CPU0_MIN_FREQ_PATH);
+                //
+                // Log.e("FauxClock", "getMinFreqSet(0): " + output);
+                // return output;
+                break;
             case 1:
-
-                output = ShellInterface.getProcessOutput("cat "
-                        + CPU1_MIN_FREQ_PATH);
-                Log.e("FauxClock", "getMinFreqSet(1): " + output);
-                return output;
-
+                which = CPU1_MIN_FREQ_PATH;
+                // output = ShellInterface.getProcessOutput("cat "
+                // + CPU1_MIN_FREQ_PATH);
+                // Log.e("FauxClock", "getMinFreqSet(1): " + output);
+                // return output;
+                break;
             default:
                 Log.e(TAG, "getMinFreq() failed with cpu:" + whichCpu);
                 return null;
-
         }
+        return readOneLineFile(which);
+
+        // for (int i = 0; i < 4; i++) {
+        // int got = 0;
+        // try {
+        // got = Integer.parseInt(readOneLineFile(which));
+        // } catch (Exception e) {
+        // continue;
+        // }
+        //
+        // //Log.e("FauxClock", "getMinFreqSet() on try " + i + " got " + got);
+        // if (min >= got)
+        // min = got;
+        // }
+        // return min + "";
+
     }
 
     /**
@@ -411,22 +515,29 @@ public class CpuVddController implements CpuInterface {
      * @return null if invalid param is sent in
      */
     public String getMaxFreqSet(int whichCpu) {
+        String cpu;
+        String out = null;
         switch (whichCpu) {
             case 0:
-                if (ShellInterface.isSuAvailable()) {
-                    return ShellInterface.getProcessOutput("cat "
-                            + CPU0_MAX_FREQ_PATH);
-                }
+                cpu = CPU0_MAX_FREQ_PATH;
+                break;
+
+            // return ShellInterface.getProcessOutput("cat "
+            // + CPU0_MAX_FREQ_PATH);
+
             case 1:
-                if (ShellInterface.isSuAvailable()) {
-                    return ShellInterface.getProcessOutput("cat "
-                            + CPU1_MAX_FREQ_PATH);
-                }
+                cpu = CPU1_MAX_FREQ_PATH;
+                break;
+            // return ShellInterface.getProcessOutput("cat "
+            // + CPU1_MAX_FREQ_PATH);
+
             default:
                 Log.e(TAG, "getMaxFreq() failed with cpu:" + whichCpu);
                 return null;
 
         }
+
+        return readOneLineFile(cpu);
     }
 
     /**
@@ -445,38 +556,41 @@ public class CpuVddController implements CpuInterface {
      * @return null if invalid param is sent in
      */
     public String getCurrentFrequency(int whichCpu) {
+        String cpu;
 
-        try {
-            switch (whichCpu) {
-                case 0:
-                    // if (ShellInterface.isSuAvailable()) {
-                    ShellInterface.runCommand("chmod 644 " + CPU0_CUR_FREQ_PATH);
-                    // }
-                    BufferedReader bf1 = new BufferedReader(new FileReader(CPU0_CUR_FREQ_PATH));
-                    String cpu0 = bf1.readLine();
-                    // Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " +
-                    // cpu0);
-                    return cpu0.trim();
-                case 1:
-                    pingCpu1();
-                    // if (ShellInterface.isSuAvailable()) {
-                    ShellInterface.runCommand("chmod 644 " + CPU1_CUR_FREQ_PATH);
-                    // }
-                    BufferedReader bf2 = new BufferedReader(new FileReader(CPU1_CUR_FREQ_PATH));
-                    String cpu1 = bf2.readLine();
-                    // Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " +
-                    // cpu1);
-                    return cpu1.trim();
-                default:
-                    return null;
+        switch (whichCpu) {
+            case 0:
+                cpu = CPU0_CUR_FREQ_PATH;
+                // // if (ShellInterface.isSuAvailable()) {
+                // runCommand("chmod 644 " + CPU0_CUR_FREQ_PATH);
+                // // }
+                // BufferedReader bf1 = new BufferedReader(new
+                // FileReader(CPU0_CUR_FREQ_PATH));
+                // String cpu0 = bf1.readLine();
+                // // Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " +
+                // // cpu0);
+                // return cpu0.trim();
+                break;
+            case 1:
+                pingCpu1();
+                cpu = CPU1_CUR_FREQ_PATH;
+                // // if (ShellInterface.isSuAvailable()) {
+                // runCommand("chmod 644 " + CPU1_CUR_FREQ_PATH);
+                // // }
+                // BufferedReader bf2 = new BufferedReader(new
+                // FileReader(CPU1_CUR_FREQ_PATH));
+                // String cpu1 = bf2.readLine();
+                // // Log.e(TAG, "getCurFreq for cpu: " + whichCpu + ": " +
+                // // cpu1);
+                // return cpu1.trim();
+                break;
+            default:
+                return null;
 
-            }
-        } catch (FileNotFoundException e) {
-            // e.printStackTrace();
-        } catch (IOException e) {
-            // e.printStackTrace();
         }
-        return null;
+        String output = readOneLineFile(cpu);
+        // Log.e(TAG, "geCurrentFrequency(" + whichCpu + "): " + output);
+        return output;
     }
 
     /**
@@ -515,21 +629,19 @@ public class CpuVddController implements CpuInterface {
         editor.apply();
 
         // apply for now.
-        if (ShellInterface.isSuAvailable()) {
-            String s = Math.abs(newDelta) + "";
-            if (newDelta > 0)
-                s = "+" + s;
-            else
-                s = "-" + s;
+        String s = Math.abs(newDelta) + "";
+        if (newDelta > 0)
+            s = "+" + s;
+        else
+            s = "-" + s;
 
-            // Log.e(TAG, "applying voltage: " + s);
-            ShellInterface
-                    .runCommand("echo \""
-                            + s
-                            + "\" > /sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels");
-            editor.putString("voltage_delta", globalVoltageDelta + "");
-            editor.apply();
-        }
+        // Log.e(TAG, "applying voltage: " + s);
+        runCommand("echo \""
+                + s
+                + "\" > /sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels");
+        editor.putString("voltage_delta", globalVoltageDelta + "");
+        editor.apply();
+
     }
 
     public boolean isValidGov(String gov) {
@@ -576,10 +688,12 @@ public class CpuVddController implements CpuInterface {
     }
 
     public String[] getAvailableFrequencies() {
-        String[] arr = new String[freqs.size()];
+        ArrayList<String> temp = freqs;
+        temp.remove("310500");
+        String[] arr = new String[temp.size()];
 
-        for (int i = 0; i < freqs.size(); i++) {
-            arr[i] = freqs.get(i);
+        for (int i = 0; i < temp.size(); i++) {
+            arr[i] = temp.get(i);
         }
 
         return arr;

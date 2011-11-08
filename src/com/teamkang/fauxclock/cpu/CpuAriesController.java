@@ -402,4 +402,10 @@ public class CpuAriesController implements CpuInterface {
         return f;
     }
 
+    @Override
+    public void fixPermissions() {
+        // TODO Auto-generated method stub
+        
+    }
+
 }
