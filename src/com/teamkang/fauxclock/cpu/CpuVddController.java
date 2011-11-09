@@ -72,20 +72,19 @@ public class CpuVddController implements CpuInterface {
 
     public CpuVddController(Context c) {
         mContext = c;
-       fixPermissions();
-        // root = ((OCApplication) c.getApplicationContext());
-
         settings = mContext.getSharedPreferences("cpu_table", 0);
         editor = settings.edit();
 
-        
-        readGovernersFromSystem();
-        readVddCpuTable();
-        
+        root = ((OCApplication) c.getApplicationContext());
+        // fixPermissions();
+        // readGovernersFromSystem();
+        // readVddCpuTable();
+
     }
-    
+
     public void fixPermissions() {
         runCommand("chmod 666 " + CPU_GOVS_LIST_PATH);
+
         runCommand("chmod 666 " + CPU0_CURRENT_GOV);
         runCommand("chmod 666 " + CPU0_MAX_FREQ_PATH);
         runCommand("chmod 666 " + CPU0_MIN_FREQ_PATH);
@@ -93,6 +92,9 @@ public class CpuVddController implements CpuInterface {
         runCommand("chmod 666 " + CPU1_MAX_FREQ_PATH);
         runCommand("chmod 666 " + CPU1_MIN_FREQ_PATH);
         runCommand("chmod 666 " + CPU1_CUR_FREQ_PATH);
+        root.setPermissionsChecked(true);
+        readGovernersFromSystem();
+        readVddCpuTable();
     }
 
     public static boolean isSupported() {
@@ -129,11 +131,11 @@ public class CpuVddController implements CpuInterface {
     }
 
     public String readOneLineFile(String fileName) {
-        runCommand("chmod 666 " + fileName);
+        //runCommand("chmod 666 " + fileName);
         String out = null;
         FileInputStream fis;
         try {
-            
+
             fis = new FileInputStream(fileName);
 
             BufferedInputStream bis = new BufferedInputStream(fis);
@@ -151,11 +153,11 @@ public class CpuVddController implements CpuInterface {
     }
 
     public String readFile(String fileName) {
-        runCommand("chmod 666 " + fileName);
+        //runCommand("chmod 666 " + fileName);
         String out = "";
         FileInputStream fis;
         try {
-            
+
             fis = new FileInputStream(fileName);
 
             BufferedInputStream bis = new BufferedInputStream(fis);
@@ -204,10 +206,10 @@ public class CpuVddController implements CpuInterface {
             if (freq == null || voltage == null)
                 break;
 
+            Log.e(TAG, "Freq: " + freq + ", voltage: " + voltage);
             freqs.add(freq.trim());
             editor.putString(freq, voltage);
 
-            Log.e(TAG, "Freq: " + freq + ", voltage: " + voltage);
         }
         ;
 

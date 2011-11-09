@@ -18,6 +18,8 @@ public class OCApplication extends Application {
     private BroadcastReceiver mReceiver;
     private ShellInterfaceO sh;
 
+    private boolean PermissionsChecked = false;
+
     private String TAG = "OCApplication";
 
     public void onCreate() {
@@ -50,6 +52,14 @@ public class OCApplication extends Application {
             getApplicationContext().unregisterReceiver(mReceiver);
         } catch (IllegalArgumentException e) {
         }
+    }
+
+    public boolean arePermissionsChecked() {
+        return PermissionsChecked;
+    }
+
+    public void setPermissionsChecked(boolean yesno) {
+        PermissionsChecked = yesno;
     }
 
     public BroadcastReceiver getScreenReceiver() {

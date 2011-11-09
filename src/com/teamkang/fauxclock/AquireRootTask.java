@@ -33,6 +33,8 @@ public class AquireRootTask extends AsyncTask<Void, Integer, Boolean> {
     private static final int PROGRESS_BUSYBOX_FOUND = 4;
     private static final int PROGRESS_BUSYBOX_NOT_FOUND = 7;
     private static final int PROGRESS_DONE = 5;
+    private static final int PROGRESS_CHECKING_PERMS = 8;
+    private static final int PROGRESS_PERMS_ERROR = 9;
 
     public AquireRootTask(Context c) {
         bc = ((OCApplication) c.getApplicationContext());
@@ -91,6 +93,12 @@ public class AquireRootTask extends AsyncTask<Void, Integer, Boolean> {
                 break;
             case PROGRESS_DONE:
                 status.setText("Checks passed!");
+                break;
+            case PROGRESS_CHECKING_PERMS:
+                status.setText("Setting proper permissions");
+                break;
+            case PROGRESS_PERMS_ERROR:
+                status.setText("Error setting permissions. Please restart the app.");
                 break;
         }
 
@@ -154,6 +162,12 @@ public class AquireRootTask extends AsyncTask<Void, Integer, Boolean> {
                     os.flush();
                 }
             }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         } catch (Exception e)
         {
             // Can't get root !
@@ -170,10 +184,11 @@ public class AquireRootTask extends AsyncTask<Void, Integer, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
+
         ((OCApplication) mContext.getApplicationContext()).setPhoneManagerStuff();
-        
+
         publishProgress(PROGRESS_AQUIRING_ROOT);
-        
+
         if (canRunRootCommands()) {
             publishProgress(PROGRESS_ROOT_AQUIRED);
         } else {
@@ -181,18 +196,34 @@ public class AquireRootTask extends AsyncTask<Void, Integer, Boolean> {
             return false;
         }
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
         
         
-        publishProgress(PROGRESS_DONE);
-        
-        if(true)
+        publishProgress(PROGRESS_CHECKING_PERMS);
+        ((OCApplication) mContext.getApplicationContext()).getCpu().fixPermissions();
+
+        if (bc.arePermissionsChecked()) {
+            publishProgress(PROGRESS_DONE);
             return true;
+        } else {
+            for (int i = 0; i < 5; i++) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                if (bc.arePermissionsChecked()) {
+                    publishProgress(PROGRESS_DONE);
+                    return true;
+                }
+            }
+
+        }
+
+        publishProgress(PROGRESS_PERMS_ERROR);
+
+        if (true)
+            return false;
 
         publishProgress(PROGRESS_BUSYBOX_CHECKING);
 
